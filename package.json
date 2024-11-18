@@ -1,0 +1,23 @@
+{
+  "name": "proyecto-is-4-grupo2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --watch ./src/app.js"
+  },
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mysql2": "^3.11.4",
+    "semistandard": "^17.0.0",
+    "zod": "^3.23.8"
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/semistandard/eslintrc.json"
+  }
+}

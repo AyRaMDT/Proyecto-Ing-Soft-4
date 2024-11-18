@@ -1,0 +1,21 @@
+### CREAR PERSONA
+POST http://localhost:3333/persona/crear-persona
+Content-Type: application/json
+
+{
+  "cedula": 117990134,
+  "nombre": "Ayram",
+  "primerApellido": "Tolentino",
+  "segundoApellido": "Quesada"
+}
+
+
+### OBTENER PERSONA
+GET  http://localhost:3333/persona/obtener-persona
+Content-Type: application/json
+
+{
+  "cedula": 117990136
+}
+
+
