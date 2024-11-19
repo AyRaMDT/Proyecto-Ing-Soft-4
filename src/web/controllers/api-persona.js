@@ -1,44 +1,82 @@
 import { PersonaController } from '../../controllers/persona-controller.js';
-import { validarPersona } from '../../models/persona-model.js';
 
 export class ApiPersona {
-  static async nuevaPersona (req, res) {
+  
+  // Función para crear una persona
+  static async nuevaPersona(req, res) {
     try {
-      // aqui se está utilzando zod para validar los datos que
-      // se ingresan al sistema coincidan con el modelo.
-
-      const validatedData = await validarPersona(req.body);
-      if (validatedData.error) {
-        return res.status(400).json({ message: JSON.parse(validatedData.error.message) });
-      }
-
-      const { cedula, nombre, primerApellido, segundoApellido } = validatedData.data;
-
-      // se llama al controlador para ingresar la persona
-      const createResult = await PersonaController.crearPesona({ cedula, nombre, primerApellido, segundoApellido });
-
-      if (!createResult.success) {
-        return res.status(400).json({ errors: 'no se pudo crear la persona' });
-      }
-
-      return res.status(201).json({ message: createResult.message, user: createResult.user });
+      const { cedula, nombre, primerApellido, segundoApellido } = req.body;
+      
+      // Llamar al controlador para crear la persona
+      const result = await PersonaController.crearPersona({ cedula, nombre, primerApellido, segundoApellido });
+      
+      res.status(201).json({ message: result.message });
     } catch (e) {
+      console.error(e);
       res.status(500).json({ error: e.message });
     }
   }
 
-  static async listaPersonas (req, res) {
+  // Función para obtener la lista de personas
+  static async listaPersonas(req, res) {
     try {
-      console.log(req.body.cedula);
-
-      const result = await PersonaController.obtenerPersona({ cedula: req.body.cedula });
+      const result = await PersonaController.obtenerListaPersonas();
+      
       if (!result.success) {
-        return res.status(400).json({ message: result.message });
+        return res.status(404).json({ message: result.message });
       }
 
+      res.status(200).json({ personas: result.personas });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: e.message });
+    }
+  }
+
+  // Función para eliminar una persona
+  static async eliminarPersona(req, res) {
+    try {
+      const { cedula } = req.body;
+
+      // Llamar al controlador para eliminar la persona
+      const result = await PersonaController.eliminarPersona({ cedula });
+
+      res.status(200).json({ message: result.message });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: e.message });
+    }
+  }
+
+
+  static async modificarPersona(req, res) {
+    try {
+      const { cedula, nombre, primerApellido, segundoApellido } = req.body;
+
+      const result = await PersonaController.modificarPersona({ cedula, nombre, primerApellido, segundoApellido });
+
+      res.status(200).json({ message: result.message });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: e.message });
+    }
+  }
+
+  static async obtenerPersonaPorCedula(req, res) {
+    try {
+      const { cedula } = req.query;  // Obtener cédula desde los parámetros de consulta
+    
+      const result = await PersonaController.obtenerPersonaPorCedula({ cedula });
+    
+      if (!result.success) {
+        return res.status(404).json({ message: result.message });
+      }
+    
       res.status(200).json({ persona: result.persona });
     } catch (e) {
+      console.error(e);
       res.status(500).json({ error: e.message });
     }
   }
-}
+  
+}  

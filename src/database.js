@@ -1,17 +1,23 @@
 import mysql from 'mysql2/promise';
-import 'dotenv/config';
 
-const dbConfig = {
-  host: process.env.HOST,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
-  port: process.env.PORT,
-  database: process.env.DATABASE
-};
+const connection = await mysql.createConnection({
+  host: 'localhost',          
+  user: 'root',              
+  password: 'Ana010703',      
+  database: 'banco'        
+});
+
+export default connection;
+
 
 export const connectDB = async () => {
   try {
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await mysql.createConnection({
+      host: 'localhost',
+      user: 'root',
+      password: 'Ana010703',
+      database: 'banco'
+    });
     console.log('db connected');
     return connection;
   } catch (e) {

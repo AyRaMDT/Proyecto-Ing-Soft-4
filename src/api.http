@@ -1,21 +1,31 @@
-### CREAR PERSONA
+### CREAR PERSONA  CREATE
 POST http://localhost:3333/persona/crear-persona
 Content-Type: application/json
 
 {
-  "cedula": 117990134,
-  "nombre": "Ayram",
-  "primerApellido": "Tolentino",
-  "segundoApellido": "Quesada"
+  "cedula": 115100494,
+  "nombre": "Adonay",
+  "primerApellido": "Chacon",
+  "segundoApellido": "Soto"
 }
 
+###MODIFICAR PERSONA UPDATE
+curl -X PUT http://localhost:3333/persona/modificar-persona \
+-H "Content-Type: application/json" \
+-d '{
+  "cedula": 118780671,
+  "nombre": "Ana",
+  "primerApellido": "Quesada",
+  "segundoApellido": "Soto"
+}'
 
-### OBTENER PERSONA
+
+
+### OBTENER LISTA DE PERSONAS READ
 GET  http://localhost:3333/persona/obtener-persona
 Content-Type: application/json
 
-{
-  "cedula": 117990136
-}
 
+###ELIMINAR PERSONA DELETE
+DELETE http://localhost:3333/persona/eliminar-persona?cedula=117990134
 
