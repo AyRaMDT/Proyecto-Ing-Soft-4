@@ -11,8 +11,7 @@ app.use(cors({
   credentials: true
 }));
 
-// todas la rutas que empiecen con /persona
-// utilizan el router de persona
+
 app.use('/persona', personaRouter);
 
 app.listen(port, () => {
