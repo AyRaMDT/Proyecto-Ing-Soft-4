@@ -1,3 +1,4 @@
+//PERSONAS
 ### CREAR PERSONA  CREATE
 POST http://localhost:3333/persona/crear-persona
 Content-Type: application/json
@@ -20,7 +21,6 @@ curl -X PUT http://localhost:3333/persona/modificar-persona \
 }'
 
 
-
 ### OBTENER LISTA DE PERSONAS READ
 GET  http://localhost:3333/persona/obtener-persona
 Content-Type: application/json
@@ -29,3 +29,37 @@ Content-Type: application/json
 ###ELIMINAR PERSONA DELETE
 DELETE http://localhost:3333/persona/eliminar-persona?cedula=115100494
 
+
+//CLIENTES
+###OBTENER LISTA DE CLIENTES READ
+GET http://localhost:3333/cliente/obtener-clientes
+Content-Type: application/json
+
+
+###CREAR UN NUEVO CLIENTE
+POST http://localhost:3333/cliente/crear-cliente
+Content-Type: application/json
+{
+    "idClientes": 4,
+    "direccion": "Calle 13",
+    "telefono": 86161747,
+    "correoElectronico": "Correo@example.com",
+    "Persona_Cedula": 115100494,
+    "contrasena": "contraseña"
+}
+
+###Modificar Cliente
+curl -X PUT http://localhost:3333/cliente/modificar-cliente \
+     -H "Content-Type: application/json" \
+     -d '{
+           "idClientes": 4,
+           "direccion": "Nueva Calle 13",
+           "telefono": 86161748,
+           "correoElectronico": "NuevoCorreo@example.com",
+           "Persona_Cedula": 115100494,
+           "contrasena": "nuevaContraseña"
+         }'
+
+###Eliminar Cliente 
+DELETE "http://localhost:3333/cliente/eliminar-cliente?Persona_Cedula=115100494"
+Content-Type: application/json
