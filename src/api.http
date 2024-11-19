@@ -36,7 +36,7 @@ GET http://localhost:3333/cliente/obtener-clientes
 Content-Type: application/json
 
 
-###CREAR UN NUEVO CLIENTE
+###CREAR UN NUEVO CLIENTE CREATE
 POST http://localhost:3333/cliente/crear-cliente
 Content-Type: application/json
 {
@@ -48,7 +48,7 @@ Content-Type: application/json
     "contrasena": "contraseña"
 }
 
-###Modificar Cliente
+###Modificar Cliente UPDATE
 curl -X PUT http://localhost:3333/cliente/modificar-cliente \
      -H "Content-Type: application/json" \
      -d '{
@@ -60,6 +60,38 @@ curl -X PUT http://localhost:3333/cliente/modificar-cliente \
            "contrasena": "nuevaContraseña"
          }'
 
-###Eliminar Cliente 
+###Eliminar Cliente DELETE
 DELETE "http://localhost:3333/cliente/eliminar-cliente?Persona_Cedula=115100494"
 Content-Type: application/json
+
+//ANALISTAS
+
+###OBTENER LISTA DE ANALISTAS READ
+GET http://localhost:3333/analistas/listar
+Content-Type: application/json
+
+
+###CREAR UN NUEVO ANALISTA CREATE
+POST http://localhost:3333/analistas/insertar
+Content-Type: application/json
+{
+       "idanalistaCredito": 4,
+        "telefono": 86161747,
+        "correoElectronico": "analista@example.com",
+        "contrasena": "contraseña",
+        "Persona_Cedula": 115100494
+}
+
+###MODIFICAR UN ANALISTA UPDATE
+curl -X PUT http://localhost:3333/analistas/modificar \
+-H "Content-Type: application/json" \
+-d '{
+      "idanalistaCredito": 3,
+        "telefono": 86161747,
+        "correoElectronico": "analista@example.com",
+        "contrasena": "contraseña",
+        "Persona_Cedula": 115100494
+}
+'
+###ELIMINAR UN ANALISTA DELETE
+DELETE http://localhost:3333/analistas/eliminar?personaCedula=115100494
