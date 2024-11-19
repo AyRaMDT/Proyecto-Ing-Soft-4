@@ -6,11 +6,10 @@ export const personaRouter = Router();
 // Ruta para crear una persona
 personaRouter.post('/crear-persona', ApiPersona.nuevaPersona);
 
+
 personaRouter.get('/obtener-persona', ApiPersona.listaPersonas);
 
 personaRouter.delete('/eliminar-persona', ApiPersona.eliminarPersona);
 
-personaRouter.put('/modificar-persona', ApiPersona.modificarPersona);
-personaRouter.get('/persona/obtener-persona-por-cedula', ApiPersona.obtenerPersonaPorCedula);
 
-export default personaRouter;
+personaRouter.put('/modificar-persona', ApiPersona.modificarPersona);

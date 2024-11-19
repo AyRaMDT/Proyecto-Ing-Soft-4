@@ -32,21 +32,26 @@ export class ApiPersona {
       res.status(500).json({ error: e.message });
     }
   }
-
-  // Función para eliminar una persona
   static async eliminarPersona(req, res) {
     try {
-      const { cedula } = req.body;
-
-      // Llamar al controlador para eliminar la persona
+      const { cedula } = req.query; // Obtener la cédula desde el query string
+  
+   
       const result = await PersonaController.eliminarPersona({ cedula });
-
+  
+   
+      if (!result.success) {
+        return res.status(404).json({ message: result.message });
+      }
+  
+    
       res.status(200).json({ message: result.message });
     } catch (e) {
       console.error(e);
       res.status(500).json({ error: e.message });
     }
   }
+  
 
 
   static async modificarPersona(req, res) {
@@ -61,22 +66,5 @@ export class ApiPersona {
       res.status(500).json({ error: e.message });
     }
   }
+}
 
-  static async obtenerPersonaPorCedula(req, res) {
-    try {
-      const { cedula } = req.query;  // Obtener cédula desde los parámetros de consulta
-    
-      const result = await PersonaController.obtenerPersonaPorCedula({ cedula });
-    
-      if (!result.success) {
-        return res.status(404).json({ message: result.message });
-      }
-    
-      res.status(200).json({ persona: result.persona });
-    } catch (e) {
-      console.error(e);
-      res.status(500).json({ error: e.message });
-    }
-  }
-  
-}  

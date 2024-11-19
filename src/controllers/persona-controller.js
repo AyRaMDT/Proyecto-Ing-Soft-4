@@ -33,32 +33,22 @@ export class PersonaController {
 
   static async eliminarPersona({ cedula }) {
     try {
-      await connection.query(`
+      const [result] = await connection.query(`
         CALL EliminarPersona(?);
       `, [cedula]);
-
-      return { success: true, message: 'Persona eliminada correctamente' };
+  
+      if (result.affectedRows === 0) {
+        return { success: true, message: 'Persona eliminada correctamente' };
+      }
+  
+      return { success: false, message: 'No se encontró persona con esa cédula' };
     } catch (e) {
       console.error(e);
       throw new Error('Un error ocurrió al eliminar la persona');
     }
   }
-  static async obtenerPersonaPorCedula({ cedula }) {
-    try {
-      const [persona] = await connection.query(`
-        CALL ObtenerPersonaPorCedula(?);
-      `, [cedula]);
   
-      return persona.length === 0
-        ? { success: false, message: 'Persona no encontrada' }
-        : { success: true, persona: persona[0] };  // Asegúrate de devolver el primer registro
-    } catch (e) {
-      console.error(e);
-      throw new Error('Un error ocurrió al obtener la persona por cédula');
-    }
-  }
-  
-  
+
   static async modificarPersona({ cedula, nombre, primerApellido, segundoApellido }) {
     try {
       await connection.query(`

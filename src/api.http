@@ -27,5 +27,5 @@ Content-Type: application/json
 
 
 ###ELIMINAR PERSONA DELETE
-DELETE http://localhost:3333/persona/eliminar-persona?cedula=117990134
+DELETE http://localhost:3333/persona/eliminar-persona?cedula=115100494
 
