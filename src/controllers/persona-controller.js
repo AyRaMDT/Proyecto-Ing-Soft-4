@@ -3,32 +3,68 @@ import { connectDB } from '../database.js';
 const connection = await connectDB();
 
 export class PersonaController {
-  static async crearPesona ({ cedula, nombre, primerApellido, segundoApellido }) {
+  static async crearPersona({ cedula, nombre, primerApellido, segundoApellido }) {
     try {
       await connection.query(`
-        INSERT INTO Persona(cedula, nombre, primerApellido, segundoApellido)
-        VALUES (?, ?, ?, ?);`, [cedula, nombre, primerApellido, segundoApellido]
-      );
+        CALL InsertarPersona(?, ?, ?, ?);
+      `, [cedula, nombre, primerApellido, segundoApellido]);
 
       return { success: true, message: 'Persona creada correctamente' };
     } catch (e) {
-      throw Error('Un error ocurrio al crear una persona');
+      console.error(e);
+      throw new Error('Un error ocurrió al crear la persona');
     }
   }
 
-  static async obtenerPersona ({ cedula }) {
+  static async obtenerListaPersonas() {
     try {
-      const [persona] = await connection.query(`
-        SELECT cedula, nombre, primerApellido, segundoApellido
-        FROM Persona
-        WHERE cedula = ?;`, [cedula]
-      );
+      const [personas] = await connection.query(`
+        CALL ObtenerListaPersonas();
+      `);
 
-      return persona.length === 0
-        ? { success: false, message: 'Persona no encontrada' }
-        : { success: true, persona: persona[0] };
-    } catch (error) {
-      throw Error('Un error ocurrio al obtener la persona');
+      return personas.length === 0
+        ? { success: false, message: 'No se encontraron personas' }
+        : { success: true, personas };
+    } catch (e) {
+      console.error(e);
+      throw new Error('Un error ocurrió al obtener la lista de personas');
+    }
+  }
+  static async eliminarPersona({ cedula }) {
+    try {
+      const [rows] = await connection.query(
+        `
+        CALL EliminarPersona(?);
+        `,
+        [cedula]
+      );
+  
+      const { Resultado: mensaje, FilasAfectadas: filasAfectadas } = rows[0][0];
+  
+      if (filasAfectadas > 0) {
+        return { success: true, message: mensaje };
+      }
+  
+      return { success: false, message: mensaje };
+    } catch (e) {
+      console.error(e);
+      throw new Error('Un error ocurrió al eliminar la persona');
+    }
+  }
+  
+  
+
+  static async modificarPersona({ cedula, nombre, primerApellido, segundoApellido }) {
+    try {
+      await connection.query(`
+        CALL ModificarPersona(?, ?, ?, ?);
+      `, [cedula, nombre, primerApellido, segundoApellido]);
+
+      return { success: true, message: 'Persona modificada correctamente' };
+    } catch (e) {
+      console.error(e);
+      throw new Error('Un error ocurrió al modificar la persona');
     }
   }
 }
+

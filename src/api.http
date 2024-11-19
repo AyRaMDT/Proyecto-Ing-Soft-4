@@ -1,21 +1,97 @@
-### CREAR PERSONA
+//PERSONAS
+### CREAR PERSONA  CREATE
 POST http://localhost:3333/persona/crear-persona
 Content-Type: application/json
 
 {
-  "cedula": 117990134,
-  "nombre": "Ayram",
-  "primerApellido": "Tolentino",
-  "segundoApellido": "Quesada"
+  "cedula": 115100494,
+  "nombre": "Adonay",
+  "primerApellido": "Chacon",
+  "segundoApellido": "Soto"
 }
 
+###MODIFICAR PERSONA UPDATE
+curl -X PUT http://localhost:3333/persona/modificar-persona \
+-H "Content-Type: application/json" \
+-d '{
+  "cedula": 118780671,
+  "nombre": "Ana",
+  "primerApellido": "Quesada",
+  "segundoApellido": "Soto"
+}'
 
-### OBTENER PERSONA
+
+### OBTENER LISTA DE PERSONAS READ
 GET  http://localhost:3333/persona/obtener-persona
 Content-Type: application/json
 
+
+###ELIMINAR PERSONA DELETE
+DELETE http://localhost:3333/persona/eliminar-persona?cedula=115100494
+
+
+//CLIENTES
+###OBTENER LISTA DE CLIENTES READ
+GET http://localhost:3333/cliente/obtener-clientes
+Content-Type: application/json
+
+
+###CREAR UN NUEVO CLIENTE CREATE
+POST http://localhost:3333/cliente/crear-cliente
+Content-Type: application/json
 {
-  "cedula": 117990136
+    "idClientes": 4,
+    "direccion": "Calle 13",
+    "telefono": 86161747,
+    "correoElectronico": "Correo@example.com",
+    "Persona_Cedula": 115100494,
+    "contrasena": "contraseña"
 }
 
+###Modificar Cliente UPDATE
+curl -X PUT http://localhost:3333/cliente/modificar-cliente \
+     -H "Content-Type: application/json" \
+     -d '{
+           "idClientes": 4,
+           "direccion": "Nueva Calle 13",
+           "telefono": 86161748,
+           "correoElectronico": "NuevoCorreo@example.com",
+           "Persona_Cedula": 115100494,
+           "contrasena": "nuevaContraseña"
+         }'
 
+###Eliminar Cliente DELETE
+DELETE "http://localhost:3333/cliente/eliminar-cliente?Persona_Cedula=115100494"
+Content-Type: application/json
+
+//ANALISTAS
+
+###OBTENER LISTA DE ANALISTAS READ
+GET http://localhost:3333/analistas/listar
+Content-Type: application/json
+
+
+###CREAR UN NUEVO ANALISTA CREATE
+POST http://localhost:3333/analistas/insertar
+Content-Type: application/json
+{
+       "idanalistaCredito": 4,
+        "telefono": 86161747,
+        "correoElectronico": "analista@example.com",
+        "contrasena": "contraseña",
+        "Persona_Cedula": 115100494
+}
+
+###MODIFICAR UN ANALISTA UPDATE
+curl -X PUT http://localhost:3333/analistas/modificar \
+-H "Content-Type: application/json" \
+-d '{
+      "idanalistaCredito": 3,
+        "telefono": 86161747,
+        "correoElectronico": "analista@example.com",
+        "contrasena": "contraseña",
+        "Persona_Cedula": 115100494
+}
+'
+###ELIMINAR UN ANALISTA DELETE
+DELETE http://localhost:3333/analistas/eliminar?personaCedula=115100494

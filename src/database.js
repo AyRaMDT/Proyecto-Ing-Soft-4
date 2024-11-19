@@ -1,6 +1,5 @@
 import mysql from 'mysql2/promise';
 import 'dotenv/config';
-
 const dbConfig = {
   host: process.env.HOST,
   user: process.env.USER,
@@ -8,7 +7,6 @@ const dbConfig = {
   port: process.env.PORT,
   database: process.env.DATABASE
 };
-
 export const connectDB = async () => {
   try {
     const connection = await mysql.createConnection(dbConfig);
