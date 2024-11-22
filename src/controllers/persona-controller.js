@@ -3,7 +3,7 @@ import { connectDB } from '../database.js';
 const connection = await connectDB();
 
 export class PersonaController {
-  static async crearPersona({ cedula, nombre, primerApellido, segundoApellido }) {
+  static async crearPersona ({ cedula, nombre, primerApellido, segundoApellido }) {
     try {
       await connection.query(`
         CALL InsertarPersona(?, ?, ?, ?);
@@ -16,7 +16,7 @@ export class PersonaController {
     }
   }
 
-  static async obtenerListaPersonas() {
+  static async obtenerListaPersonas () {
     try {
       const [personas] = await connection.query(`
         CALL ObtenerListaPersonas();
@@ -30,7 +30,8 @@ export class PersonaController {
       throw new Error('Un error ocurrió al obtener la lista de personas');
     }
   }
-  static async eliminarPersona({ cedula }) {
+
+  static async eliminarPersona ({ cedula }) {
     try {
       const [rows] = await connection.query(
         `
@@ -38,23 +39,21 @@ export class PersonaController {
         `,
         [cedula]
       );
-  
+
       const { Resultado: mensaje, FilasAfectadas: filasAfectadas } = rows[0][0];
-  
+
       if (filasAfectadas > 0) {
         return { success: true, message: mensaje };
       }
-  
+
       return { success: false, message: mensaje };
     } catch (e) {
       console.error(e);
       throw new Error('Un error ocurrió al eliminar la persona');
     }
   }
-  
-  
 
-  static async modificarPersona({ cedula, nombre, primerApellido, segundoApellido }) {
+  static async modificarPersona ({ cedula, nombre, primerApellido, segundoApellido }) {
     try {
       await connection.query(`
         CALL ModificarPersona(?, ?, ?, ?);
@@ -67,4 +66,3 @@ export class PersonaController {
     }
   }
 }
-

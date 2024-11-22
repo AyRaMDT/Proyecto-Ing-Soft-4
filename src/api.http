@@ -71,16 +71,47 @@ GET http://localhost:3333/analistas/listar
 Content-Type: application/json
 
 
-###CREAR UN NUEVO ANALISTA CREATE
-POST http://localhost:3333/analistas/insertar
+
+### REGISTAR UN NUEVO ANALISTA (CREATE) 
+POST http://localhost:3333/auth/register
 Content-Type: application/json
+
 {
-       "idanalistaCredito": 4,
-        "telefono": 86161747,
-        "correoElectronico": "analista@example.com",
-        "contrasena": "contraseña",
-        "Persona_Cedula": 115100494
+  "cedula": 1111111,
+  "nombre": "nombreEjemplo",
+  "primerApellido": "apellidoEjemplo",
+  "segundoApellido": "apellido2Ejemplo",
+  "telefono": 61279057,
+  "correoElectronico": "analista@example.com",
+  "contrasena": "contraseñaa"
 }
+
+### LOGIN
+POST http://localhost:3333/auth/login
+Content-Type: application/json
+
+{
+  "personaCedula": 1111111,
+  "contrasena": "contraseñaa"
+}
+
+### LOGOUT
+POST http://localhost:3333/auth/logout
+
+### PROFILE (RUTA PROTEGIDA) se obtienen los datos del usuario que inicio sesion
+GET http://localhost:3333/auth/profile
+
+
+# ###CREAR UN NUEVO ANALISTA CREATE
+# POST http://localhost:3333/analistas/insertar
+# Content-Type: application/json
+# {
+#        "idanalistaCredito": 4,
+#         "telefono": 86161747,
+#         "correoElectronico": "analista@example.com",
+#         "contrasena": "contraseña",
+#         "Persona_Cedula": 115100494
+# }
 
 ###MODIFICAR UN ANALISTA UPDATE
 curl -X PUT http://localhost:3333/analistas/modificar \

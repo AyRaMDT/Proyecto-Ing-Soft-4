@@ -3,31 +3,26 @@ import { connectDB } from '../database.js';
 const connection = await connectDB();
 
 export class ClienteController {
-  
+  static async insertarCliente ({ direccion, telefono, correoElectronico, Persona_Cedula, contrasena }) {
+    try {
+      console.log('Parametros recibidos:', { direccion, telefono, correoElectronico, Persona_Cedula, contrasena });
 
-    static async insertarCliente({ direccion, telefono, correoElectronico, Persona_Cedula, contrasena }) {
-        try {
-          console.log('Parametros recibidos:', { direccion, telefono, correoElectronico, Persona_Cedula, contrasena });
-      
-          if (!direccion || !telefono || !correoElectronico || !Persona_Cedula || !contrasena) {
-            throw new Error('Todos los campos son requeridos');
-          }
-      
-        
-          await connection.query(`
+      if (!direccion || !telefono || !correoElectronico || !Persona_Cedula || !contrasena) {
+        throw new Error('Todos los campos son requeridos');
+      }
+
+      await connection.query(`
             CALL InsertarCliente(?, ?, ?, ?, ?);
           `, [direccion, telefono, correoElectronico, Persona_Cedula, contrasena]);
-      
-          return { success: true, message: 'Cliente insertado correctamente' };
-        } catch (e) {
-          console.error(e);
-          throw new Error('Un error ocurrió al insertar el cliente');
-        }
-      }
-      
-      
-  static async obtenerListaClientes() {
 
+      return { success: true, message: 'Cliente insertado correctamente' };
+    } catch (e) {
+      console.error(e);
+      throw new Error('Un error ocurrió al insertar el cliente');
+    }
+  }
+
+  static async obtenerListaClientes () {
     try {
       const [clientes] = await connection.query('CALL ObtenerListaClientes();');
       return { success: true, clientes };
@@ -37,8 +32,7 @@ export class ClienteController {
     }
   }
 
-
-  static async eliminarCliente({ Persona_Cedula }) {
+  static async eliminarCliente ({ Persona_Cedula }) {
     try {
       const [rows] = await connection.query(`
         CALL EliminarCliente(?);
@@ -57,7 +51,7 @@ export class ClienteController {
     }
   }
 
-  static async modificarCliente({ Persona_Cedula, direccion, telefono, correoElectronico, contrasena }) {
+  static async modificarCliente ({ Persona_Cedula, direccion, telefono, correoElectronico, contrasena }) {
     try {
       await connection.query(`
         CALL ModificarCliente(?, ?, ?, ?, ?);
