@@ -6,7 +6,6 @@ const connection = await connectDB();
 export class AuthController {
   static async registarPersona ({ cedula, nombre, primerApellido, segundoApellido }) {
     try {
-      // verificar si el analista ya existe
       const [persona] = await connection.query(`
       SELECT cedula
       FROM Persona
@@ -15,8 +14,6 @@ export class AuthController {
       if (persona.length > 0) {
         return { success: false, errors: { cedula: ['ya existe un persona registrada con este numero de cedula'] } };
       }
-
-      // si no existe se crea uno
       await connection.query(`
         INSERT INTO Persona(cedula, nombre, primerApellido, segundoApellido)
         VALUES (?, ?, ?, ?);`, [
@@ -25,8 +22,6 @@ export class AuthController {
         primerApellido,
         segundoApellido
       ]);
-
-      // se selecciona para devolver el nuevo analista creado
       const [personaNueva] = await connection.query(`
         SELECT cedula, nombre, primerApellido, segundoApellido
         FROM Persona
@@ -41,7 +36,6 @@ export class AuthController {
 
   static async registarAnalista ({ telefono, correoElectronico, contrasena, cedula }) {
     try {
-      // verificar si el analista ya existe
       const [analista] = await connection.query(`
       SELECT persona_cedula
       FROM analistaCredito
@@ -51,7 +45,6 @@ export class AuthController {
         return { success: false, errors: { cedula: ['ya existe un analista registrado con este numero de cedula'] } };
       }
 
-      // si no existe se crea uno
       const encryptedPassword = await bcrypt.hash(contrasena, 10);
       await connection.query(`
         INSERT INTO analistaCredito(telefono, correoElectronico, contrasena, persona_cedula)
@@ -63,7 +56,6 @@ export class AuthController {
       ]
       );
 
-      // se selecciona para devolver el nuevo analista creado
       const [analistaNuevo] = await connection.query(`
         SELECT idanalistaCredito, telefono, contrasena, persona_cedula
         FROM analistaCredito
@@ -84,9 +76,6 @@ export class AuthController {
         WHERE persona_cedula = ?;`, [personaCedula]
       );
 
-      // console.log(analista);
-
-      // verify if password is valid
       const { contrasena: hashedPassword } = analista[0];
       const isValid = await bcrypt.compare(contrasena, hashedPassword);
 
