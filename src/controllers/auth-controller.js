@@ -37,9 +37,9 @@ export class AuthController {
   static async registarAnalista ({ telefono, correoElectronico, contrasena, cedula }) {
     try {
       const [analista] = await connection.query(`
-      SELECT persona_cedula
+      SELECT personaCedula
       FROM analistaCredito
-      WHERE persona_cedula = ?;`, [cedula]);
+      WHERE personaCedula = ?;`, [cedula]);
 
       if (analista.length > 0) {
         return { success: false, errors: { cedula: ['ya existe un analista registrado con este numero de cedula'] } };
@@ -47,7 +47,7 @@ export class AuthController {
 
       const encryptedPassword = await bcrypt.hash(contrasena, 10);
       await connection.query(`
-        INSERT INTO analistaCredito(telefono, correoElectronico, contrasena, persona_cedula)
+        INSERT INTO analistaCredito(telefono, correoElectronico, contrasena, personaCedula)
         VALUES (?, ?, ?, ?);`, [
         telefono,
         correoElectronico,
@@ -57,9 +57,9 @@ export class AuthController {
       );
 
       const [analistaNuevo] = await connection.query(`
-        SELECT idanalistaCredito, telefono, contrasena, persona_cedula
+        SELECT idanalistaCredito, telefono, contrasena, personaCedula
         FROM analistaCredito
-        WHERE persona_cedula = ?;`, [cedula]
+        WHERE personaCedula = ?;`, [cedula]
       );
 
       return { success: true, message: 'Analista creado correctamente', analista: analistaNuevo[0] };
@@ -71,27 +71,34 @@ export class AuthController {
   static async iniciarSesion ({ personaCedula, contrasena }) {
     try {
       const [analista] = await connection.query(`
-        SELECT idanalistaCredito, contrasena, persona_cedula
+        SELECT idanalistaCredito, contrasena, personaCedula
         FROM analistaCredito
-        WHERE persona_cedula = ?;`, [personaCedula]
+        WHERE personaCedula = ?;`, [personaCedula]
       );
 
-      const { contrasena: hashedPassword } = analista[0];
-      const isValid = await bcrypt.compare(contrasena, hashedPassword);
+      // Verifica si no hay un analista con esa cédula
+      if (analista.length === 0) {
+        return { success: false, message: 'Número de cédula o contraseña incorrectos' };
+      }
 
-      if (analista.length === 0 || !isValid) {
-        return { success: false, message: 'Numero de cedula o contrasenna incorrecta' };
+      // Extrae la contraseña cifrada y compara
+      const { contrasena: hashedPassword } = analista[0];
+      console.log('Contraseña cifrada en la base de datos:', hashedPassword); // Verifica este valor
+      const isValid = await bcrypt.compare(contrasena, hashedPassword);
+      if (!isValid) {
+        return { success: false, message: 'Número de cédula o contraseña incorrectos' };
       }
 
       return { success: true, message: 'Bienvenido', analista: analista[0] };
     } catch (e) {
-      throw Error('Un error ocurrio al iniciar sesion');
+      console.error(e);
+      throw new Error('Un error ocurrió al iniciar sesión');
     }
   }
 
   static async profile ({ idanalistaCredito }) {
     const [analista] = await connection.query(`
-      SELECT idanalistaCredito, telefono, correoElectronico, contrasena, persona_cedula
+      SELECT idanalistaCredito, telefono, correoElectronico, contrasena, personaCedula
       FROM analistaCredito
       WHERE idanalistaCredito = ?;`, [idanalistaCredito]
     );

@@ -3,19 +3,20 @@ import { connectDB } from '../database.js';
 const connection = await connectDB();
 
 export class ClienteController {
-  static async insertarCliente ({ direccion, telefono, correoElectronico, personaCedula, contrasena }) {
+  static async insertarCliente ({ nombre, primerApellido, segundoApellido, personaCedula, direccion, telefono, correoElectronico, contrasena }) {
     try {
-      console.log('Parametros recibidos:', { direccion, telefono, correoElectronico, personaCedula, contrasena });
+      console.log('Parametros recibidos:', { nombre, primerApellido, segundoApellido, personaCedula, direccion, telefono, correoElectronico, contrasena });
 
-      if (!direccion || !telefono || !correoElectronico || !personaCedula || !contrasena) {
+      if (!nombre || !primerApellido || !segundoApellido || !personaCedula || !direccion || !telefono || !correoElectronico || !contrasena) {
         throw new Error('Todos los campos son requeridos');
       }
 
-      await connection.query(`
-            CALL InsertarCliente(?, ?, ?, ?, ?);
-          `, [direccion, telefono, correoElectronico, personaCedula, contrasena]);
-
-      return { success: true, message: 'Cliente insertado correctamente' };
+      const [result] = await connection.query(`
+        CALL agregarCliente(?, ?, ?, ?, ?, ?, ?, ?, @mensaje);
+      `, [nombre, primerApellido, segundoApellido, personaCedula, direccion, telefono, correoElectronico, contrasena]);
+      console.log(result);
+      const [mensajeResult] = await connection.query('SELECT @mensaje AS mensaje;');
+      return { success: true, message: mensajeResult[0].mensaje };
     } catch (e) {
       console.error(e);
       throw new Error('Un error ocurrió al insertar el cliente');
@@ -24,43 +25,51 @@ export class ClienteController {
 
   static async obtenerListaClientes () {
     try {
-      const [clientes] = await connection.query('CALL ObtenerListaClientes();');
-      return { success: true, clientes };
+      const [clientes] = await connection.query('CALL leerClientes(@mensaje);');
+      const mensaje = clientes[0].mensaje;
+      return { success: true, mensaje, clientes: clientes[0] };
     } catch (error) {
       console.error(error);
       return { success: false, message: error.message };
     }
   }
 
-  static async eliminarCliente ({ personaCedula }) {
+  static async eliminarCliente ({ idClientes }) {
     try {
-      const [rows] = await connection.query(`
-        CALL EliminarCliente(?);
-      `, [personaCedula]);
+      const [result] = await connection.query(`
+        CALL eliminarCliente(?, @mensaje);
+      `, [idClientes]);
+      console.log(result);
 
-      const { Resultado: mensaje, FilasAfectadas: filasAfectadas } = rows[0][0];
+      const [messageResult] = await connection.query('SELECT @mensaje AS mensaje');
 
-      if (filasAfectadas > 0) {
-        return { success: true, message: mensaje };
+      if (messageResult[0].mensaje === 'Cliente no encontrado') {
+        return { success: false, message: 'Cliente no encontrado' };
       }
 
-      return { success: false, message: mensaje };
+      return { success: true, message: messageResult[0].mensaje };
     } catch (e) {
       console.error(e);
       throw new Error('Un error ocurrió al eliminar el cliente');
     }
   }
 
-  static async modificarCliente ({ personaCedula, direccion, telefono, correoElectronico, contrasena }) {
+  static async modificarCliente ({ idClientes, nombre, primerApellido, segundoApellido, direccion, telefono, correoElectronico, contrasena }) {
     try {
-      await connection.query(`
-        CALL ModificarCliente(?, ?, ?, ?, ?);
-      `, [personaCedula, direccion, telefono, correoElectronico, contrasena]);
+      const [callResult] = await connection.query(`
+        CALL modificarCliente(?, ?, ?, ?, ?, ?, ?, ?, @mensaje);
+      `, [idClientes, nombre, primerApellido, segundoApellido, direccion, telefono, correoElectronico, contrasena]);
+      console.log(callResult);
+      console.log('ID Cliente:', idClientes);
+      const [messageResult] = await connection.query('SELECT @mensaje AS mensaje');
 
-      return { success: true, message: 'Cliente modificado correctamente' };
+      if (messageResult[0].mensaje === 'Cliente no encontrado') {
+        return { success: false, message: 'Cliente no encontrado' };
+      }
+      return { success: true, message: messageResult[0].mensaje };
     } catch (e) {
       console.error(e);
-      throw new Error('Un error ocurrió al modificar el cliente');
+      return { success: false, message: e.message };
     }
   }
 }

@@ -12,7 +12,7 @@ class AnalistasController {
       }
 
       const connection = await connectDB();
-      const [rows] = await connection.query('CALL agregarAnalistaCredito(?, ?, ?, ?, ?, ?, ?, @mensaje)', [
+      const [personaNueva] = await connection.query('CALL agregarAnalistaCredito(?, ?, ?, ?, ?, ?, ?, @mensaje)', [
         nombre,
         primerApellido,
         segundoApellido,
@@ -22,10 +22,11 @@ class AnalistasController {
         contrasena
       ]);
 
+      // Obtener el mensaje de la variable de salida @mensaje
       const [[{ mensaje }]] = await connection.query('SELECT @mensaje as mensaje');
 
       if (mensaje.includes('Éxito')) {
-        return { success: true, message: mensaje, persona: rows[0] };
+        return { success: true, message: mensaje, persona: personaNueva[0] }; // Aquí devolvemos el primer elemento
       } else {
         return { success: false, message: mensaje };
       }

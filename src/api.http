@@ -1,36 +1,41 @@
 //CLIENTES
-###OBTENER LISTA DE CLIENTES READ
+
+###OBTENER LISTA DE ANALISTAS READ
 GET http://localhost:3333/cliente/obtener-clientes
 Content-Type: application/json
 
-
-###CREAR UN NUEVO CLIENTE CREATE
+### REGISTAR UN NUEVO CLIENTE (CREATE) 
 POST http://localhost:3333/cliente/crear-cliente
 Content-Type: application/json
 {
-    "idClientes": 4,
-    "direccion": "Calle 13",
-    "telefono": 86161747,
-    "correoElectronico": "Correo@example.com",
-    "Persona_Cedula": 115100494,
-    "contrasena": "contraseña"
+  "nombre": "Ana",
+  "primerApellido": "Quesada",
+  "segundoApellido": "Soto",
+  "direccion": "Calle Ficticia 123",
+  "telefono": "1234567890",
+  "correoElectronico": "juan.perez@email.com",
+  "personaCedula": 123456788,
+  "contrasena": "12345"
 }
 
-###Modificar Cliente UPDATE
+###MODIFICAR CLIENTE
 curl -X PUT http://localhost:3333/cliente/modificar-cliente \
-     -H "Content-Type: application/json" \
-     -d '{
-           "idClientes": 4,
-           "direccion": "Nueva Calle 13",
-           "telefono": 86161748,
-           "correoElectronico": "NuevoCorreo@example.com",
-           "Persona_Cedula": 115100494,
-           "contrasena": "nuevaContraseña"
-         }'
+-H "Content-Type: application/json" \
+-d '{
+  "idClientes": 2,
+  "nombre": "Belen",
+  "primerApellido": "Quesada",
+  "segundoApellido": "Soto",
+  "direccion": "Calle Ficticia 123",
+  "telefono": "1234567890",
+  "correoElectronico": "juan.perez@email.com",
+  "personaCedula": 123456788,
+  "contrasena": "12345"
+}'
 
-###Eliminar Cliente DELETE
-DELETE "http://localhost:3333/cliente/eliminar-cliente?Persona_Cedula=115100494"
-Content-Type: application/json
+###ELIMINAR CLIENTE
+DELETE http://localhost:3333/cliente/eliminar-cliente?idClientes=2
+
 
 //ANALISTAS
 
@@ -41,26 +46,46 @@ Content-Type: application/json
 
 
 ### REGISTAR UN NUEVO ANALISTA (CREATE) 
-POST http://localhost:3333/auth/register
+POST http://localhost:3333/analistas/insertar
 Content-Type: application/json
-
 {
-  "cedula": 1111111,
-  "nombre": "nombreEjemplo",
-  "primerApellido": "apellidoEjemplo",
-  "segundoApellido": "apellido2Ejemplo",
-  "telefono": 61279057,
-  "correoElectronico": "analista@example.com",
-  "contrasena": "contraseñaa"
+    "nombre": "Juan",
+    "primerApellido": "Perez",
+    "segundoApellido": "Lopez",
+    "personaCedula": "123456789",
+    "telefono": "1234567890",
+    "correoElectronico": "juan.perez@ejemplo.com",
+    "contrasena": "contrasenaSegura123"
 }
+
+
+###MODIFICAR UN ANALISTA UPDATE
+curl -X PUT http://localhost:3333/analistas/modificar \
+-H "Content-Type: application/json" \
+-d '{
+      "idanalistaCredito": 2,
+      "nombre": "Pedro",
+      "primerApellido": "Perez",
+      "segundoApellido": "Lopez",
+      "personaCedula": "123456789",
+      "telefono": "1234567890",
+      "correoElectronico": "juan.perez@ejemplo.com",
+      "contrasena": "contrasenaSegura123"
+}'
+
+###ELIMINAR UN ANALISTA DELETE
+DELETE http://localhost:3333/analistas/eliminar?idanalistaCredito=3
+
+
+
 
 ### LOGIN
 POST http://localhost:3333/auth/login
 Content-Type: application/json
 
 {
-  "personaCedula": 1111111,
-  "contrasena": "contraseñaa"
+  "personaCedula": 123456789,
+  "contrasena": "contrasenaSegura123"
 }
 
 ### LOGOUT
@@ -68,29 +93,3 @@ POST http://localhost:3333/auth/logout
 
 ### PROFILE (RUTA PROTEGIDA) se obtienen los datos del usuario que inicio sesion
 GET http://localhost:3333/auth/profile
-
-
-# ###CREAR UN NUEVO ANALISTA CREATE
-# POST http://localhost:3333/analistas/insertar
-# Content-Type: application/json
-# {
-#        "idanalistaCredito": 4,
-#         "telefono": 86161747,
-#         "correoElectronico": "analista@example.com",
-#         "contrasena": "contraseña",
-#         "Persona_Cedula": 115100494
-# }
-
-###MODIFICAR UN ANALISTA UPDATE
-curl -X PUT http://localhost:3333/analistas/modificar \
--H "Content-Type: application/json" \
--d '{
-      "idanalistaCredito": 3,
-        "telefono": 86161747,
-        "correoElectronico": "analista@example.com",
-        "contrasena": "contraseña",
-        "Persona_Cedula": 115100494
-}
-'
-###ELIMINAR UN ANALISTA DELETE
-DELETE http://localhost:3333/analistas/eliminar?personaCedula=115100494

@@ -1,12 +1,15 @@
-import AnalistaController from '../../controllers/analistas-controller.js';
+import AnalistasController from '../../controllers/analistas-controller.js';
 
 export class ApiAnalista {
   static async nuevoAnalista (req, res) {
     try {
       console.log('Datos recibidos:', req.body);
-      const { telefono, correoElectronico, contrasena, Persona_Cedula } = req.body;
+      const { nombre, primerApellido, segundoApellido, personaCedula, telefono, correoElectronico, contrasena } = req.body;
+      if (!nombre || !primerApellido || !segundoApellido || !personaCedula || !telefono || !correoElectronico || !contrasena) {
+        return res.status(400).json({ message: 'Todos los campos son requeridos' });
+      }
 
-      const result = await AnalistaController.insertarAnalista({ telefono, correoElectronico, contrasena, Persona_Cedula });
+      const result = await AnalistasController.insertarAnalista({ nombre, primerApellido, segundoApellido, personaCedula, telefono, correoElectronico, contrasena });
 
       if (result.success) {
         return res.status(201).json({ message: result.message });
@@ -21,7 +24,7 @@ export class ApiAnalista {
 
   static async listaAnalistas (req, res) {
     try {
-      const result = await AnalistaController.obtenerListaAnalistas();
+      const result = await AnalistasController.obtenerListaAnalistas();
 
       if (!result.success) {
         return res.status(404).json({ message: result.message });
@@ -36,13 +39,13 @@ export class ApiAnalista {
 
   static async eliminarAnalista (req, res) {
     try {
-      const { personaCedula } = req.query;
+      const { idanalistaCredito } = req.query;
 
-      if (!personaCedula) {
-        return res.status(400).json({ message: 'Se requiere la cédula de la persona' });
+      if (!idanalistaCredito) {
+        return res.status(400).json({ message: 'Se requiere el ID del analista' });
       }
 
-      const result = await AnalistaController.eliminarAnalista({ personaCedula });
+      const result = await AnalistasController.eliminarAnalista({ idanalistaCredito });
 
       if (!result.success) {
         return res.status(404).json({ message: result.message });
@@ -59,18 +62,21 @@ export class ApiAnalista {
     try {
       console.log(req.body);
 
-      const { personaCedula, telefono, correoElectronico, contrasena, Persona_Cedula } = req.body;
+      const { idanalistaCredito, nombre, primerApellido, segundoApellido, telefono, correoElectronico, contrasena, personaCedula } = req.body;
 
-      if (!personaCedula || !telefono || !correoElectronico || !contrasena || !Persona_Cedula) {
+      if (!idanalistaCredito || !nombre || !primerApellido || !segundoApellido || !telefono || !correoElectronico || !contrasena || !personaCedula) {
         return res.status(400).json({ message: 'Todos los campos son requeridos' });
       }
 
-      const result = await AnalistaController.modificarAnalista({
-        personaCedula,
+      const result = await AnalistasController.modificarAnalista({
+        idanalistaCredito,
+        nombre,
+        primerApellido,
+        segundoApellido,
         telefono,
         correoElectronico,
         contrasena,
-        Persona_Cedula
+        personaCedula
       });
 
       if (!result.success) {
