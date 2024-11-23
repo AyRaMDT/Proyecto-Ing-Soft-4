@@ -14,7 +14,7 @@ export class ApiCliente {
         nombre,
         primerApellido,
         segundoApellido,
-        personaCedula: personaCedula,
+        personaCedula,
         direccion,
         telefono,
         correoElectronico,
@@ -45,9 +45,8 @@ export class ApiCliente {
 
   static async eliminarCliente (req, res) {
     try {
-      const { idClientes } = req.query; // Asegúrate de usar idClientes aquí
+      const { idClientes } = req.query;
 
-      // Asegúrate de que el ID del cliente esté presente
       if (!idClientes) {
         return res.status(400).json({ message: 'El ID del cliente es requerido' });
       }
