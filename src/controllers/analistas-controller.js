@@ -3,28 +3,31 @@ import { connectDB } from '../database.js';
 const connection = await connectDB();
 
 class AnalistasController {
-  static async insertarAnalista ({ telefono, correoElectronico, contrasena, Persona_Cedula }) {
+  static async insertarAnalista ({ nombre, primerApellido, segundoApellido, personaCedula, telefono, correoElectronico, contrasena }) {
     try {
-      console.log('Datos recibidos en Node.js:', { telefono, correoElectronico, contrasena, Persona_Cedula });
+      console.log('Datos recibidos en Node.js:', { nombre, primerApellido, segundoApellido, personaCedula, telefono, correoElectronico, contrasena });
 
-      if (!telefono || !correoElectronico || !contrasena || !Persona_Cedula) {
+      if (!nombre || !primerApellido || !segundoApellido || !personaCedula || !telefono || !correoElectronico || !contrasena) {
         return { success: false, message: 'Todos los campos son requeridos' };
       }
 
       const connection = await connectDB();
-      const [rows] = await connection.query('CALL InsertarAnalistaCredito(?, ?, ?, ?)', [
+      const [rows] = await connection.query('CALL agregarAnalistaCredito(?, ?, ?, ?, ?, ?, ?, @mensaje)', [
+        nombre,
+        primerApellido,
+        segundoApellido,
+        personaCedula,
         telefono,
         correoElectronico,
-        contrasena,
-        Persona_Cedula
+        contrasena
       ]);
 
-      console.log('Resultado de la consulta:', rows);
+      const [[{ mensaje }]] = await connection.query('SELECT @mensaje as mensaje');
 
-      if (rows && rows.length > 0 && rows[0].filas_afectadas > 0) {
-        return { success: true, message: 'Analista insertado correctamente' };
+      if (mensaje.includes('Éxito')) {
+        return { success: true, message: mensaje, persona: rows[0] };
       } else {
-        return { success: false, message: 'No se pudo insertar el analista' };
+        return { success: false, message: mensaje };
       }
     } catch (error) {
       console.error('Error al insertar analista:', error);
@@ -32,59 +35,65 @@ class AnalistasController {
     }
   }
 
-  static async modificarAnalista ({ idanalistaCredito, telefono, correoElectronico, contrasena, Persona_Cedula }) {
+  static async modificarAnalista ({ idanalistaCredito, nombre, primerApellido, segundoApellido, telefono, correoElectronico, contrasena }) {
     try {
       const connection = await connectDB();
-      const [rows] = await connection.query('CALL ModificarAnalistaCredito(?, ?, ?, ?, ?)', [
+      const [rows] = await connection.query('CALL modificarAnalistaCredito(?, ?, ?, ?, ?, ?, ?, @mensaje)', [
         idanalistaCredito,
+        nombre,
+        primerApellido,
+        segundoApellido,
         telefono,
         correoElectronico,
-        contrasena,
-        Persona_Cedula
+        contrasena
       ]);
 
-      if (rows.length > 0 && rows[0].resultado) {
-        return { success: true, message: rows[0].resultado };
+      const [[{ mensaje }]] = await connection.query('SELECT @mensaje as mensaje');
+
+      if (mensaje.includes('Éxito')) {
+        return { success: true, message: mensaje, persona: rows[0] };
       } else {
-        return { success: false, message: 'Analista modificado correctamente' };
+        return { success: false, message: mensaje };
       }
     } catch (error) {
       console.error('Error al modificar analista:', error);
-      return { success: false, message: `Error: ${error.message}` };
+      return { success: false, message: 'Ocurrió un error al modificar el analista: ' + error.message };
     }
   }
 
-  static async eliminarAnalista ({ personaCedula }) {
+  static async eliminarAnalista ({ idanalistaCredito }) {
     try {
-      console.log('Cédula recibida:', personaCedula);
+      console.log('ID de analista recibido:', idanalistaCredito);
 
-      const [rows] = await connection.query(`
-            CALL EliminarAnalistaCredito(?);
-        `, [personaCedula]);
+      const [rows] = await connection.query('CALL eliminarAnalistaCredito(?, @mensaje)', [idanalistaCredito]);
 
-      console.log('Resultado de la consulta:', rows);
+      const [[{ mensaje }]] = await connection.query('SELECT @mensaje as mensaje');
 
-      const { Resultado: mensaje, FilasAfectadas: filasAfectadas } = rows[0][0];
-
-      if (filasAfectadas > 0) {
-        return { success: true, message: mensaje };
+      if (mensaje.includes('Éxito')) {
+        return { success: true, message: mensaje, persona: rows[0] };
+      } else {
+        return { success: false, message: mensaje };
       }
-
-      return { success: false, message: mensaje };
     } catch (e) {
       console.error('Error al eliminar analista:', e);
-      throw new Error('Un error ocurrió al eliminar el analista');
+      return { success: false, message: 'Ocurrió un error al eliminar el analista: ' + e.message };
     }
   }
 
   static async obtenerListaAnalistas () {
     try {
       const connection = await connectDB();
-      const [analistas] = await connection.query('CALL ObtenerListaAnalistas()');
-      return { success: true, analistas };
+      const [rows] = await connection.query('CALL leerAnalistasCredito(@mensaje)');
+      const [[{ mensaje }]] = await connection.query('SELECT @mensaje as mensaje');
+
+      if (mensaje.includes('Éxito')) {
+        return { success: true, analistas: rows };
+      } else {
+        return { success: false, message: mensaje };
+      }
     } catch (error) {
-      console.error('Error al obtener los analistas:', error);
-      return { success: false, message: 'Ocurrió un error al obtener los analistas' };
+      console.error('Error al obtener la lista de analistas:', error);
+      return { success: false, message: 'Ocurrió un error al obtener la lista de analistas' };
     }
   }
 }

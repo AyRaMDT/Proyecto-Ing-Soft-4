@@ -3,17 +3,17 @@ import { connectDB } from '../database.js';
 const connection = await connectDB();
 
 export class ClienteController {
-  static async insertarCliente ({ direccion, telefono, correoElectronico, Persona_Cedula, contrasena }) {
+  static async insertarCliente ({ direccion, telefono, correoElectronico, personaCedula, contrasena }) {
     try {
-      console.log('Parametros recibidos:', { direccion, telefono, correoElectronico, Persona_Cedula, contrasena });
+      console.log('Parametros recibidos:', { direccion, telefono, correoElectronico, personaCedula, contrasena });
 
-      if (!direccion || !telefono || !correoElectronico || !Persona_Cedula || !contrasena) {
+      if (!direccion || !telefono || !correoElectronico || !personaCedula || !contrasena) {
         throw new Error('Todos los campos son requeridos');
       }
 
       await connection.query(`
             CALL InsertarCliente(?, ?, ?, ?, ?);
-          `, [direccion, telefono, correoElectronico, Persona_Cedula, contrasena]);
+          `, [direccion, telefono, correoElectronico, personaCedula, contrasena]);
 
       return { success: true, message: 'Cliente insertado correctamente' };
     } catch (e) {
@@ -32,11 +32,11 @@ export class ClienteController {
     }
   }
 
-  static async eliminarCliente ({ Persona_Cedula }) {
+  static async eliminarCliente ({ personaCedula }) {
     try {
       const [rows] = await connection.query(`
         CALL EliminarCliente(?);
-      `, [Persona_Cedula]);
+      `, [personaCedula]);
 
       const { Resultado: mensaje, FilasAfectadas: filasAfectadas } = rows[0][0];
 
@@ -51,11 +51,11 @@ export class ClienteController {
     }
   }
 
-  static async modificarCliente ({ Persona_Cedula, direccion, telefono, correoElectronico, contrasena }) {
+  static async modificarCliente ({ personaCedula, direccion, telefono, correoElectronico, contrasena }) {
     try {
       await connection.query(`
         CALL ModificarCliente(?, ?, ?, ?, ?);
-      `, [Persona_Cedula, direccion, telefono, correoElectronico, contrasena]);
+      `, [personaCedula, direccion, telefono, correoElectronico, contrasena]);
 
       return { success: true, message: 'Cliente modificado correctamente' };
     } catch (e) {
