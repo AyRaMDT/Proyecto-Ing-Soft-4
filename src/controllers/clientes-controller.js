@@ -3,23 +3,48 @@ import { connectDB } from '../database.js';
 const connection = await connectDB();
 
 export class ClienteController {
-  static async insertarCliente ({ nombre, primerApellido, segundoApellido, personaCedula, direccion, telefono, correoElectronico, contrasena }) {
-    try {
-      console.log('Parametros recibidos:', { nombre, primerApellido, segundoApellido, personaCedula, direccion, telefono, correoElectronico, contrasena });
+  static async insertarCliente (clienteNuevo) {
+    const { nombre, primerApellido, segundoApellido, direccion, telefono, correoElectronico, personaCedula, contrasena } = clienteNuevo;
 
-      if (!nombre || !primerApellido || !segundoApellido || !personaCedula || !direccion || !telefono || !correoElectronico || !contrasena) {
-        throw new Error('Todos los campos son requeridos');
+    try {
+      console.log('Datos enviados para insertar cliente:', {
+        nombre,
+        primerApellido,
+        segundoApellido,
+        direccion,
+        telefono,
+        correoElectronico,
+        personaCedula,
+        contrasena
+      });
+
+      if (!personaCedula) {
+        throw new Error('El campo personaCedula es obligatorio.');
       }
 
-      const [result] = await connection.query(`
-        CALL agregarCliente(?, ?, ?, ?, ?, ?, ?, ?, @mensaje);
-      `, [nombre, primerApellido, segundoApellido, personaCedula, direccion, telefono, correoElectronico, contrasena]);
-      console.log(result);
-      const [mensajeResult] = await connection.query('SELECT @mensaje AS mensaje;');
-      return { success: true, message: mensajeResult[0].mensaje };
-    } catch (e) {
-      console.error(e);
-      throw new Error('Un error ocurrió al insertar el cliente');
+      await connection.beginTransaction();
+
+      const [result1] = await connection.query(`
+          INSERT INTO persona (cedula, Nombre, PrimerApellido, SegundoApellido)
+          VALUES (?, ?, ?, ?)
+        `, [personaCedula, nombre, primerApellido, segundoApellido]);
+
+      console.log('Cliente insertado en la tabla persona:', result1);
+
+      const [result2] = await connection.query(`
+          INSERT INTO clientes (personaCedula, direccion, telefono, correoElectronico, contrasena)
+          VALUES (?, ?, ?, ?, ?)
+        `, [personaCedula, direccion, telefono, correoElectronico, contrasena]);
+
+      console.log('Cliente insertado en la tabla clientes:', result2);
+
+      await connection.commit();
+
+      return { success: true, message: 'Cliente registrado exitosamente.' };
+    } catch (error) {
+      await connection.rollback();
+      console.error('Error al insertar cliente:', error);
+      return { success: false, message: 'Error: No se pudo agregar el registro.' };
     }
   }
 

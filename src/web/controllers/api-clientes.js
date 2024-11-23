@@ -6,10 +6,24 @@ export class ApiCliente {
       console.log('Datos recibidos:', req.body);
       const { nombre, primerApellido, segundoApellido, direccion, telefono, correoElectronico, personaCedula, contrasena } = req.body;
 
-      const result = await ClienteController.insertarCliente({ nombre, primerApellido, segundoApellido, direccion, telefono, correoElectronico, personaCedula, contrasena });
+      if (!personaCedula) {
+        return res.status(400).json({ error: 'El campo personaCedula es obligatorio.' });
+      }
+
+      const result = await ClienteController.insertarCliente({
+        nombre,
+        primerApellido,
+        segundoApellido,
+        personaCedula: personaCedula,
+        direccion,
+        telefono,
+        correoElectronico,
+        contrasena
+      });
+
       res.status(201).json({ message: result.message });
     } catch (e) {
-      console.error(e);
+      console.error('Error en nuevoCliente:', e);
       res.status(500).json({ error: e.message });
     }
   }
