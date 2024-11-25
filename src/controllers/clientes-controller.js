@@ -23,24 +23,23 @@ export class ClienteController {
       }
 
       await connection.beginTransaction();
+      const [rows] = await connection.query(`
+        CALL agregarCliente(?, ?, ?, ?, ?, ?, ?, ?, @mensaje);
+      `, [nombre, primerApellido, segundoApellido, personaCedula, direccion, telefono, correoElectronico, contrasena]);
 
-      const [result1] = await connection.query(`
-          INSERT INTO persona (cedula, Nombre, PrimerApellido, SegundoApellido)
-          VALUES (?, ?, ?, ?)
-        `, [personaCedula, nombre, primerApellido, segundoApellido]);
+      console.log(rows);
+      const [result] = await connection.query('SELECT @mensaje AS mensaje');
+      const mensaje = result[0].mensaje;
 
-      console.log('Cliente insertado en la tabla persona:', result1);
-
-      const [result2] = await connection.query(`
-          INSERT INTO clientes (personaCedula, direccion, telefono, correoElectronico, contrasena)
-          VALUES (?, ?, ?, ?, ?)
-        `, [personaCedula, direccion, telefono, correoElectronico, contrasena]);
-
-      console.log('Cliente insertado en la tabla clientes:', result2);
-
-      await connection.commit();
-
-      return { success: true, message: 'Cliente registrado exitosamente.' };
+      if (mensaje === 'Cliente registrado exitosamente.') {
+        await connection.commit();
+        console.log(mensaje);
+        return { success: true, message: mensaje };
+      } else {
+        await connection.rollback();
+        console.error(mensaje);
+        return { success: false, message: mensaje };
+      }
     } catch (error) {
       await connection.rollback();
       console.error('Error al insertar cliente:', error);
