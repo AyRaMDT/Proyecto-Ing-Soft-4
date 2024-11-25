@@ -23,15 +23,20 @@ export class ClienteController {
       }
 
       await connection.beginTransaction();
+
+      // Llamar al procedimiento para agregar el cliente
       const [rows] = await connection.query(`
         CALL agregarCliente(?, ?, ?, ?, ?, ?, ?, ?, @mensaje);
       `, [nombre, primerApellido, segundoApellido, personaCedula, direccion, telefono, correoElectronico, contrasena]);
 
-      console.log(rows);
+      // Recuperar el mensaje de salida del procedimiento
       const [result] = await connection.query('SELECT @mensaje AS mensaje');
       const mensaje = result[0].mensaje;
+      console.log(rows);
 
-      if (mensaje === 'Cliente registrado exitosamente.') {
+      console.log('Mensaje recibido del procedimiento:', mensaje); // Imprimir el mensaje de la base de datos
+
+      if (mensaje === 'Éxito: Cliente agregado correctamente.') {
         await connection.commit();
         console.log(mensaje);
         return { success: true, message: mensaje };

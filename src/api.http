@@ -14,7 +14,7 @@ Content-Type: application/json
   "direccion": "Calle Ficticia 123",
   "telefono": "1234567890",
   "correoElectronico": "juan.perez@email.com",
-  "personaCedula": 123456788,
+  "personaCedula": 118780671,
   "contrasena": "12345"
 }
 
@@ -93,3 +93,20 @@ POST http://localhost:3333/auth/logout
 
 ### PROFILE (RUTA PROTEGIDA) se obtienen los datos del usuario que inicio sesion
 GET http://localhost:3333/auth/profile
+
+###PRESTAMOS
+###Agregar nuevo préstamo
+POST http://localhost:3333/prestamos/nuevoPrestamo 
+
+Content-Type: application/json
+{
+  "monto": 100000,
+  "plazoMeses": 12,
+  "fechaInicio": "2024-12-01",
+  "numeroPrestamo": "P12345",
+  "tasaInteresMoratoria": 5.0,
+  "IdEstados": 1,
+  "diaPago": 15,
+  "IdClientes": 2,
+  "clientesPersonaCedula": "118780671"
+}
