@@ -7,9 +7,10 @@ export class ApiPrestamo {
 
       const { monto, plazoMeses, fechaInicio, numeroPrestamo, tasaInteresMoratoria, estadoPrestamo, diaPago, IdClientes, clientesPersonaCedula } = req.body;
 
-      if (isNaN(clientesPersonaCedula)) {
+      if (isNaN(Number(clientesPersonaCedula))) {
         return res.status(400).json({ error: 'El campo clientesPersonaCedula debe ser un número válido.' });
       }
+      console.log('Valor recibido para clientesPersonaCedula:', clientesPersonaCedula, 'Tipo:', typeof clientesPersonaCedula);
 
       if (!monto || !plazoMeses || !fechaInicio || !numeroPrestamo || !tasaInteresMoratoria || !estadoPrestamo || !diaPago || !IdClientes || !clientesPersonaCedula) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
@@ -28,10 +29,9 @@ export class ApiPrestamo {
         fechaVencimiento: fechaVencimientoStr,
         numeroPrestamo,
         tasaInteresMoratoria,
-        estadoPrestamo,
         diaPago,
         IdClientes,
-        clientesPersonaCedula
+        clientesPersonaCedula // Quitar estadoPrestamo aquí
       });
 
       if (!result.success) {

@@ -1,7 +1,6 @@
 import { connectDB } from '../database.js';
 
 const connection = await connectDB();
-
 export class PrestamosController {
   static insertarPrestamo = async ({
     monto,
@@ -12,12 +11,11 @@ export class PrestamosController {
     fechaVencimiento,
     diaPago,
     IdClientes,
-    clientesPersonaCedula,
-    estadoPrestamo
+    clientesPersonaCedula
   }) => {
     try {
       const [result] = await connection.query(
-        'CALL agregarPrestamo(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+        'CALL agregarPrestamo(?, ?, ?, ?, ?, ?, ?, ?, ?);',
         [
           monto,
           plazoMeses,
@@ -27,15 +25,13 @@ export class PrestamosController {
           fechaVencimiento,
           diaPago,
           IdClientes,
-          clientesPersonaCedula,
-          estadoPrestamo
+          clientesPersonaCedula
         ]
       );
 
-      console.log(result);
-
-      if (result && result[0][0]['ROW_COUNT()'] > 0) {
-        return { success: true, message: 'El préstamo ha sido agregado exitosamente.' };
+      // Verificar el campo success en el resultado
+      if (result && result[0] && result[0][0].success === 1) {
+        return { success: true, message: result[0][0].message };
       }
 
       return { success: false, message: 'No se pudo agregar el préstamo. Verifique los datos.' };
