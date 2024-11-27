@@ -112,4 +112,19 @@ export class ApiPrestamo {
       res.status(500).json({ error: e.message });
     }
   }
+
+  static async ultimoPrestamo (req, res) {
+    try {
+      const result = await PrestamosController.obtenerUltimoPrestamo();
+
+      if (!result.success) {
+        return res.status(404).json({ message: result.message });
+      }
+
+      res.status(200).json({ ultimoPrestamo: result.ultimoPrestamo });
+    } catch (e) {
+      console.error('Error en ultimoPrestamo:', e);
+      res.status(500).json({ error: 'Error interno al obtener el último préstamo.' });
+    }
+  }
 }

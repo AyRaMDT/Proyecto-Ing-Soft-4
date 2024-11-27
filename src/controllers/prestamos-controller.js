@@ -29,7 +29,6 @@ export class PrestamosController {
         ]
       );
 
-      // Verificar el campo success en el resultado
       if (result && result[0] && result[0][0].success === 1) {
         return { success: true, message: result[0][0].message };
       }
@@ -54,6 +53,25 @@ export class PrestamosController {
     } catch (error) {
       console.error('Error al obtener lista de préstamos:', error);
       return { success: false, message: 'Ocurrió un error al obtener la lista de préstamos' };
+    }
+  }
+
+  static async obtenerUltimoPrestamo () {
+    try {
+      // Llamada al procedimiento almacenado
+      await connection.query('CALL obtenerUltimoPrestamo(@ultimoPrestamo)');
+
+      // Obtener el valor del parámetro de salida
+      const [[{ ultimoPrestamo }]] = await connection.query('SELECT @ultimoPrestamo AS ultimoPrestamo');
+
+      if (ultimoPrestamo) {
+        return { success: true, ultimoPrestamo };
+      } else {
+        return { success: false, message: 'No se encontró ningún préstamo registrado.' };
+      }
+    } catch (error) {
+      console.error('Error en obtenerUltimoPrestamo:', error);
+      return { success: false, message: 'Error al ejecutar el procedimiento almacenado.' };
     }
   }
 }

@@ -112,5 +112,5 @@ Content-Type: application/json
 }
 
 ###Ultimo  préstamo
-get http://localhost:3333/prestamos/ultimoprestamo
+get http://localhost:3333/prestamos/obtenerultimo
 Content-Type: application/json
