@@ -53,23 +53,26 @@ export class ApiCliente {
 
       const result = await ClienteController.eliminarCliente({ idClientes });
 
-      if (!result.success) {
+      if (result.success && result.affectedRows === 1) {
+        return res.status(200).json({ message: result.message });
+      } else {
         return res.status(404).json({ message: result.message });
       }
-
-      res.status(200).json({ message: result.message });
     } catch (e) {
-      console.error(e);
+      console.error('Error al eliminar el cliente:', e);
       res.status(500).json({ error: e.message });
     }
   }
 
   static async modificarCliente (req, res) {
     try {
-      const { idClientes, nombre, primerApellido, segundoApellido, direccion, telefono, correoElectronico, personaCedula, contrasena } = req.body;
+      console.log('Datos recibidos en el backend:', req.body);
 
-      if (!nombre || !primerApellido || !segundoApellido || !direccion || !telefono || !correoElectronico || !personaCedula || !contrasena) {
-        return res.status(400).json({ message: 'Todos los campos son requeridos' });
+      const { idClientes, nombre, primerApellido, segundoApellido, direccion, telefono, correoElectronico } = req.body;
+
+      if (!idClientes || !nombre || !primerApellido || !segundoApellido || !direccion || !telefono || !correoElectronico) {
+        console.error('Faltan campos requeridos en los datos enviados:', req.body);
+        return res.status(400).json({ message: 'Todos los campos son requeridos excepto la contraseña' });
       }
 
       const result = await ClienteController.modificarCliente({
@@ -79,16 +82,39 @@ export class ApiCliente {
         segundoApellido,
         direccion,
         telefono,
-        correoElectronico,
-        personaCedula,
-        contrasena
+        correoElectronico
       });
+
+      console.log('Resultado de la llamada al procedimiento:', result);
+
+      if (!result.success) {
+        console.error('Error al modificar cliente:', result.message);
+        return res.status(404).json({ message: result.message });
+      }
+
+      res.status(200).json({ message: result.message });
+    } catch (e) {
+      console.error('Error al modificar cliente:', e.message);
+      console.error('Detalles completos del error:', e);
+      return res.status(500).json({ error: e.message, stack: e.stack });
+    }
+  }
+
+  static async leerClientePorId (req, res) {
+    try {
+      const { idClientes } = req.query;
+
+      if (!idClientes) {
+        return res.status(400).json({ message: 'El ID del cliente es requerido' });
+      }
+
+      const result = await ClienteController.leerClientePorId(idClientes);
 
       if (!result.success) {
         return res.status(404).json({ message: result.message });
       }
 
-      res.status(200).json({ message: result.message });
+      res.status(200).json({ message: result.message, cliente: result.cliente });
     } catch (e) {
       console.error(e);
       res.status(500).json({ error: e.message });

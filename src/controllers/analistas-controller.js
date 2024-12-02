@@ -22,13 +22,14 @@ class AnalistasController {
         contrasena
       ]);
 
-      // Obtener el mensaje de la variable de salida @mensaje
       const [[{ mensaje }]] = await connection.query('SELECT @mensaje as mensaje');
 
+      const cleanedMessage = mensaje.replace(/^Error.*?:(.*)$/, '$1').trim();
+
       if (mensaje.includes('Éxito')) {
-        return { success: true, message: mensaje, persona: personaNueva[0] }; // Aquí devolvemos el primer elemento
+        return { success: true, message: cleanedMessage, persona: personaNueva[0] };
       } else {
-        return { success: false, message: mensaje };
+        return { success: false, message: cleanedMessage };
       }
     } catch (error) {
       console.error('Error al insertar analista:', error);

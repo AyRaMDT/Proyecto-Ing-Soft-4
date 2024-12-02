@@ -58,10 +58,8 @@ export class PrestamosController {
 
   static async obtenerUltimoPrestamo () {
     try {
-      // Llamada al procedimiento almacenado
       await connection.query('CALL obtenerUltimoPrestamo(@ultimoPrestamo)');
 
-      // Obtener el valor del parámetro de salida
       const [[{ ultimoPrestamo }]] = await connection.query('SELECT @ultimoPrestamo AS ultimoPrestamo');
 
       if (ultimoPrestamo) {
@@ -72,6 +70,21 @@ export class PrestamosController {
     } catch (error) {
       console.error('Error en obtenerUltimoPrestamo:', error);
       return { success: false, message: 'Error al ejecutar el procedimiento almacenado.' };
+    }
+  }
+
+  static async obtenerPrestamosPorCedula (personaCedula) {
+    try {
+      const [prestamos] = await connection.query('CALL obtenerPrestamosPorCedula(?)', [personaCedula]);
+
+      if (prestamos.length > 0) {
+        return { success: true, prestamos };
+      } else {
+        return { success: false, message: 'No se encontraron préstamos para esta cédula.' };
+      }
+    } catch (error) {
+      console.error('Error al obtener préstamos por cédula:', error);
+      return { success: false, message: 'Ocurrió un error al obtener los préstamos.' };
     }
   }
 }

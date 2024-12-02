@@ -31,7 +31,7 @@ export class ApiPrestamo {
         tasaInteresMoratoria,
         diaPago,
         IdClientes,
-        clientesPersonaCedula // Quitar estadoPrestamo aquí
+        clientesPersonaCedula
       });
 
       if (!result.success) {
@@ -125,6 +125,28 @@ export class ApiPrestamo {
     } catch (e) {
       console.error('Error en ultimoPrestamo:', e);
       res.status(500).json({ error: 'Error interno al obtener el último préstamo.' });
+    }
+  }
+
+  static async obtenerPrestamosPorCedula (req, res) {
+    try {
+      const { personaCedula } = req.params; // Extraer cédula de los parámetros de la URL
+
+      if (!personaCedula) {
+        return res.status(400).json({ message: 'La cédula es requerida.' });
+      }
+
+      // Llamar al método del controlador
+      const result = await PrestamosController.obtenerPrestamosPorCedula(personaCedula);
+
+      if (!result.success) {
+        return res.status(404).json({ message: result.message });
+      }
+
+      res.status(200).json({ prestamos: result.prestamos });
+    } catch (error) {
+      console.error('Error en obtenerPrestamosPorCedula:', error);
+      res.status(500).json({ error: 'Error interno al obtener los préstamos.' });
     }
   }
 }
