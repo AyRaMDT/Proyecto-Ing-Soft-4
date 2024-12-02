@@ -81,38 +81,6 @@ export class ApiPrestamo {
     }
   }
 
-  static async modificarPrestamo (req, res) {
-    try {
-      const { idPrestamos, monto, plazoMeses, fechaInicio, numeroPrestamo, tasaInteresMoratoria, estadoPrestamo, diaPago, IdClientes, clientesPersonaCedula } = req.body;
-
-      if (!idPrestamos || !monto || !plazoMeses || !fechaInicio || !numeroPrestamo || !tasaInteresMoratoria || !estadoPrestamo || !diaPago || !IdClientes || !clientesPersonaCedula) {
-        return res.status(400).json({ message: 'Todos los campos son requeridos' });
-      }
-
-      const result = await PrestamosController.modificarPrestamo({
-        idPrestamos,
-        monto,
-        plazoMeses,
-        fechaInicio,
-        numeroPrestamo,
-        tasaInteresMoratoria,
-        estadoPrestamo,
-        diaPago,
-        IdClientes,
-        clientesPersonaCedula
-      });
-
-      if (!result.success) {
-        return res.status(404).json({ message: result.message });
-      }
-
-      res.status(200).json({ message: result.message });
-    } catch (e) {
-      console.error('Error en modificarPrestamo:', e);
-      res.status(500).json({ error: e.message });
-    }
-  }
-
   static async ultimoPrestamo (req, res) {
     try {
       const result = await PrestamosController.obtenerUltimoPrestamo();
@@ -147,6 +115,39 @@ export class ApiPrestamo {
     } catch (error) {
       console.error('Error en obtenerPrestamosPorCedula:', error);
       res.status(500).json({ error: 'Error interno al obtener los préstamos.' });
+    }
+  }
+
+  static async actualizarPrestamo (req, res) {
+    try {
+      console.log('Datos recibidos en req.body:', req.body); // Verifica el contenido de req.body
+
+      const {
+        idPrestamos, monto, plazoMeses, fechaInicio, tasaInteresMoratoria, estadoPrestamo,
+        diaPago, IdClientes, clientesPersonaCedula, numeroPrestamo
+      } = req.body;
+
+      // Verificación de datos de entrada (solo los necesarios)
+      if (!idPrestamos || !monto || !plazoMeses || !fechaInicio || !tasaInteresMoratoria || !estadoPrestamo || !diaPago || !IdClientes || !clientesPersonaCedula) {
+        return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
+      }
+
+      console.log('Datos de préstamo:', { idPrestamos, monto, plazoMeses, fechaInicio, tasaInteresMoratoria, estadoPrestamo, diaPago, IdClientes, clientesPersonaCedula });
+
+      // Llamar al modelo que ejecutará el SP
+      const resultado = await PrestamosController.modificarPrestamo(
+        idPrestamos, monto, plazoMeses, fechaInicio, numeroPrestamo, tasaInteresMoratoria, estadoPrestamo,
+        diaPago, IdClientes, clientesPersonaCedula
+      );
+
+      if (resultado.error) {
+        return res.status(500).json({ error: resultado.error });
+      }
+
+      return res.status(200).json({ message: resultado.message });
+    } catch (e) {
+      console.error('Error en actualizarPrestamo:', e);
+      return res.status(500).json({ error: 'Error interno al procesar la solicitud.' });
     }
   }
 }

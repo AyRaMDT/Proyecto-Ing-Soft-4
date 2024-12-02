@@ -125,3 +125,19 @@ GET "http://localhost:3333/prestamos/prestamoporcedula/118780671"
 
 Content-Type: application/json
 
+###Modificar préstamo
+curl -X PUT http://localhost:3333/prestamos/actualizarPrestamo \
+  -H "Content-Type: application/json" \
+  -d '{
+  "idPrestamos": 12,
+  "monto": 50000,
+  "plazoMeses": 12,
+  "fechaInicio": "2024-12-01",
+  "numeroPrestamo": "PRE-12345",
+  "tasaInteresMoratoria": 5.25,
+  "estadoPrestamo": 2,
+  "diaPago": 15,
+  "IdClientes": 1,
+  "clientesPersonaCedula": "108000650"
+}
+'
