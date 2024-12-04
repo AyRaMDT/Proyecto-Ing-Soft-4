@@ -1,81 +1,52 @@
 import { AuthController } from '../../controllers/auth-controller.js';
-import { createAccessToken } from '../../utils/jwt.js';
-
 export class ApiAuth {
-  static async register (req, res) {
-    try {
-      // console.log(req.body);
-
-      const { cedula, nombre, primerApellido, segundoApellido, telefono, correoElectronico, contrasena } = req.body;
-
-      const createPersonaResult = await AuthController.registarPersona({ cedula, nombre, primerApellido, segundoApellido });
-
-      if (!createPersonaResult.success) {
-        return res.status(400).json({ errors: createPersonaResult.errors });
-      }
-
-      const createAnalistaResult = await AuthController.registarAnalista({ telefono, correoElectronico, contrasena, cedula });
-
-      if (!createAnalistaResult.success) {
-        return res.status(400).json({ errors: createAnalistaResult.errors });
-      }
-
-      const token = await createAccessToken({ idanalistaCredito: createAnalistaResult.analista.idanalistaCredito });
-
-      // cookie con el usuario permitido para acceder a las rutas protegidas
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production'
-      });
-
-      return res.status(201).json({ message: createAnalistaResult.message, analista: createAnalistaResult.analista });
-    } catch (e) {
-      res.status(500).json({ error: e.message });
-    }
-  }
-
   static async login (req, res) {
-    const { contrasena, personaCedula } = req.body;
-
     try {
-      const loginResult = await AuthController.iniciarSesion({ personaCedula, contrasena });
+      const { personaCedula, contrasena } = req.body;
 
-      if (!loginResult.success) {
-        return res.status(400).json({ message: loginResult.message });
+      if (!personaCedula || !contrasena) {
+        return res.status(400).json({ mensaje: 'Todos los campos son requeridos' });
       }
 
-      const token = await createAccessToken({ idanalistaCredito: loginResult.analista.idanalistaCredito });
+      const result = await AuthController.iniciarSesion({ personaCedula, contrasena });
 
-      res.cookie('token', token, {
+      if (!result.success) {
+        return res.status(401).json({ mensaje: result.message });
+      }
+
+      res.cookie('token', result.token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production'
+        secure: false,
+        sameSite: 'Strict',
+        maxAge: 3600000
       });
 
-      return res.status(201).json({ message: loginResult.message, analista: loginResult.analista });
-    } catch (e) {
-      return res.status(500).json({ error: e.message });
+      return res.status(200).json({ mensaje: result.message, rol: result.rol });
+    } catch (error) {
+      console.error('Error en la autenticación:', error);
+      res.status(500).json({ mensaje: 'Error interno del servidor' });
     }
-  }
-
-  static async logout (req, res) {
-    res.cookie('token', '', {
-      expires: new Date(0)
-    });
-
-    return res.status(200).end();
   }
 
   static async profile (req, res) {
-    console.log(req.analista);
-    const { idanalistaCredito } = req.analista;
-    const profileData = await AuthController.profile({ idanalistaCredito });
+    try {
+      const { id, rol } = req.user;
 
-    console.log(profileData);
+      const result = await AuthController.perfil({ id, rol });
 
-    if (!profileData.analista) {
-      return res.status(400).json({ message: 'analista no encontrado' });
+      if (!result.success) {
+        return res.status(404).json({ mensaje: result.message });
+      }
+
+      return res.status(200).json({ perfil: result.perfil });
+    } catch (error) {
+      console.error('Error al obtener el perfil:', error);
+      res.status(500).json({ mensaje: 'Error interno del servidor' });
     }
+  }
 
-    res.status(200).json({ analista: profileData.analista });
+  static logout (req, res) {
+    res.clearCookie('token');
+    return res.status(200).json({ mensaje: 'Logout exitoso' });
   }
 }

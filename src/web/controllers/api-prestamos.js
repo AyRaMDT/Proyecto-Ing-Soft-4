@@ -62,22 +62,25 @@ export class ApiPrestamo {
 
   static async eliminarPrestamo (req, res) {
     try {
+      // Capturar el ID desde los parámetros de consulta
       const { idPrestamos } = req.query;
 
+      console.log('ID recibido desde la URL (query):', idPrestamos);
+
       if (!idPrestamos) {
-        return res.status(400).json({ message: 'El ID del préstamo es requerido' });
+        return res.status(400).json({ message: 'El ID del préstamo es requerido.' });
       }
 
-      const result = await PrestamosController.eliminarPrestamo({ idPrestamos });
+      const result = await PrestamosController.eliminarPrestamo(idPrestamos);
 
       if (!result.success) {
-        return res.status(404).json({ message: result.message });
+        return res.status(400).json({ message: result.message });
       }
 
-      res.status(200).json({ message: result.message });
-    } catch (e) {
-      console.error('Error en eliminarPrestamo:', e);
-      res.status(500).json({ error: e.message });
+      return res.status(200).json({ message: result.message });
+    } catch (error) {
+      console.error('Error en eliminarPrestamo:', error);
+      return res.status(500).json({ message: 'Error interno al eliminar el préstamo.' });
     }
   }
 
@@ -98,13 +101,12 @@ export class ApiPrestamo {
 
   static async obtenerPrestamosPorCedula (req, res) {
     try {
-      const { personaCedula } = req.params; // Extraer cédula de los parámetros de la URL
+      const { personaCedula } = req.params;
 
       if (!personaCedula) {
         return res.status(400).json({ message: 'La cédula es requerida.' });
       }
 
-      // Llamar al método del controlador
       const result = await PrestamosController.obtenerPrestamosPorCedula(personaCedula);
 
       if (!result.success) {
@@ -120,21 +122,19 @@ export class ApiPrestamo {
 
   static async actualizarPrestamo (req, res) {
     try {
-      console.log('Datos recibidos en req.body:', req.body); // Verifica el contenido de req.body
+      console.log('Datos recibidos en req.body:', req.body);
 
       const {
         idPrestamos, monto, plazoMeses, fechaInicio, tasaInteresMoratoria, estadoPrestamo,
         diaPago, IdClientes, clientesPersonaCedula, numeroPrestamo
       } = req.body;
 
-      // Verificación de datos de entrada (solo los necesarios)
       if (!idPrestamos || !monto || !plazoMeses || !fechaInicio || !tasaInteresMoratoria || !estadoPrestamo || !diaPago || !IdClientes || !clientesPersonaCedula) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
       }
 
       console.log('Datos de préstamo:', { idPrestamos, monto, plazoMeses, fechaInicio, tasaInteresMoratoria, estadoPrestamo, diaPago, IdClientes, clientesPersonaCedula });
 
-      // Llamar al modelo que ejecutará el SP
       const resultado = await PrestamosController.modificarPrestamo(
         idPrestamos, monto, plazoMeses, fechaInicio, numeroPrestamo, tasaInteresMoratoria, estadoPrestamo,
         diaPago, IdClientes, clientesPersonaCedula

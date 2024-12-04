@@ -85,13 +85,10 @@ DELETE http://localhost:3333/analistas/eliminar?idanalistaCredito=4
 
 
 ### LOGIN
-POST http://localhost:3333/auth/login
-Content-Type: application/json
+curl -X POST http://localhost:3333/auth/login \
+-H "Content-Type: application/json" \
+-d '{"personaCedula": "118780671", "contrasena": "123456"}'
 
-{
-  "personaCedula": 123456789,
-  "contrasena": "contrasenaSegura123"
-}
 
 ### LOGOUT
 POST http://localhost:3333/auth/logout
@@ -141,3 +138,6 @@ curl -X PUT http://localhost:3333/prestamos/actualizarPrestamo \
   "clientesPersonaCedula": "108000650"
 }
 '
+
+###Eliminar Prestamo
+DELETE "http://localhost:3333/prestamos/eliminarPrestamo?idPrestamos=48"

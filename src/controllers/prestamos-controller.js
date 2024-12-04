@@ -43,8 +43,8 @@ export class PrestamosController {
   static async obtenerListaPrestamos () {
     try {
       const query = 'SELECT * FROM prestamoscliente';
-      const [rows] = await connection.query(query); // Asegúrate de que `rows` es un arreglo.
-      return rows; // Devolver como un arreglo
+      const [rows] = await connection.query(query);
+      return rows;
     } catch (error) {
       console.error('Error al obtener los préstamos:', error);
       throw error;
@@ -89,10 +89,8 @@ export class PrestamosController {
       fechaVencimiento.setMonth(fechaVencimiento.getMonth() + plazoMeses);
       console.log('Fecha de vencimiento calculada:', fechaVencimiento.toISOString());
 
-      // Obtener los datos originales de los préstamos
       const datosOriginales = await PrestamosController.obtenerListaPrestamos();
 
-      // Asegurarse de que datosOriginales es un arreglo
       if (!Array.isArray(datosOriginales)) {
         console.error('Error: Los datos originales no son un arreglo.');
         return { error: 'Error al obtener los datos originales del préstamo.' };
@@ -102,7 +100,6 @@ export class PrestamosController {
         monto, plazoMeses, fechaInicio, numeroPrestamo, tasaInteresMoratoria, estadoPrestamo, diaPago, IdClientes, clientesPersonaCedula
       ];
 
-      // Comparación de los datos originales y modificados
       const hayCambios = datosOriginales.some((dato, index) => {
         return dato !== datosModificados[index];
       });
@@ -129,11 +126,9 @@ export class PrestamosController {
         clientesPersonaCedula
       ]);
 
-      // Obtener el mensaje de salida
       const [[{ mensajeExito }]] = await connection.query('SELECT @mensajeExito AS mensajeExito');
       console.log('Resultado del procedimiento almacenado:', result);
 
-      // Manejo del mensaje de salida
       if (mensajeExito.includes('Éxito')) {
         return { message: 'El préstamo se modificó correctamente.' };
       } else {
@@ -143,6 +138,40 @@ export class PrestamosController {
     } catch (e) {
       console.error('Error en modificarPrestamo:', e);
       return { error: 'Ocurrió un error al modificar el préstamo.' };
+    }
+  }
+
+  static async eliminarPrestamo (idPrestamo) {
+    try {
+      const [existingLoan] = await connection.query(
+        'SELECT idPrestamos FROM prestamoscliente WHERE idPrestamos = ?',
+        [idPrestamo]
+      );
+
+      if (existingLoan.length === 0) {
+        return { success: false, message: 'No se encontró un préstamo con el ID proporcionado.' };
+      }
+
+      const [result] = await connection.query('CALL eliminarPrestamo(?)', [idPrestamo]);
+
+      console.log('Resultado de la llamada al procedimiento:', result);
+
+      if (result[1] && result[1][0] && result[1][0].mensajeExito) {
+        return { success: true, message: result[1][0].mensajeExito };
+      }
+
+      if (result[1] && result[1][0] && result[1][0].mensajeError) {
+        return { success: false, message: result[1][0].mensajeError };
+      }
+
+      if (result[1] && result[1][0] && result[1][0].mensajeInfo) {
+        return { success: false, message: result[1][0].mensajeInfo };
+      }
+
+      return { success: false, message: 'Error desconocido.' };
+    } catch (error) {
+      console.error('Error en eliminarPrestamo:', error);
+      return { success: false, message: 'Error al ejecutar el procedimiento almacenado.' };
     }
   }
 }

@@ -1,23 +1,20 @@
 import jwt from 'jsonwebtoken';
 
-// esta funcion se ocupará para las rutas protegidas
-// (si no inicia sesión no podrá acceder al sistema)
+const TOKEN_SECRET = 'secretpassword';
+
 export const authRequire = (req, res, next) => {
-  const { token } = req.cookies;
-  console.log(req.cookies);
+  const token = req.cookies.token;
 
   if (!token) {
-    return res.status(401).json({ message: 'Autorizacion denegada' });
+    return res.status(401).json({ mensaje: 'No autorizado' });
   }
 
-  // req.user = jwt.verify(token, TOKEN_SECRET);
-  // next();
-
-  jwt.verify(token, 'secretpassword', (err, decoded) => {
+  jwt.verify(token, TOKEN_SECRET, (err, decoded) => {
     if (err) {
-      return res.status(401).json({ error: 'Token expired or invalid' });
+      return res.status(401).json({ mensaje: 'Token inválido o expirado' });
     }
-    req.analista = decoded;
+
+    req.user = decoded;
     next();
   });
 };
