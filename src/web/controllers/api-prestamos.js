@@ -5,14 +5,26 @@ export class ApiPrestamo {
     try {
       console.log('Datos enviados en nuevoPrestamo:', req.body);
 
-      const { monto, plazoMeses, fechaInicio, numeroPrestamo, tasaInteresMoratoria, estadoPrestamo, diaPago, IdClientes, clientesPersonaCedula } = req.body;
+      const {
+        monto,
+        plazoMeses,
+        fechaInicio,
+        numeroPrestamo,
+        tasaInteresMoratoria,
+        tasaInteresAnual, // New parameter
+        estadoPrestamo,
+        diaPago,
+        IdClientes,
+        clientesPersonaCedula
+      } = req.body;
 
       if (isNaN(Number(clientesPersonaCedula))) {
         return res.status(400).json({ error: 'El campo clientesPersonaCedula debe ser un número válido.' });
       }
+
       console.log('Valor recibido para clientesPersonaCedula:', clientesPersonaCedula, 'Tipo:', typeof clientesPersonaCedula);
 
-      if (!monto || !plazoMeses || !fechaInicio || !numeroPrestamo || !tasaInteresMoratoria || !estadoPrestamo || !diaPago || !IdClientes || !clientesPersonaCedula) {
+      if (!monto || !plazoMeses || !fechaInicio || !numeroPrestamo || !tasaInteresMoratoria || !tasaInteresAnual || !estadoPrestamo || !diaPago || !IdClientes || !clientesPersonaCedula) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
       }
 
@@ -29,6 +41,7 @@ export class ApiPrestamo {
         fechaVencimiento: fechaVencimientoStr,
         numeroPrestamo,
         tasaInteresMoratoria,
+        tasaInteresAnual, // Pass tasaInteresAnual
         diaPago,
         IdClientes,
         clientesPersonaCedula
@@ -47,13 +60,22 @@ export class ApiPrestamo {
 
   static async listaPrestamos (req, res) {
     try {
-      const result = await PrestamosController.obtenerListaPrestamos();
+      const idCliente = req.query.idCliente || null;
+
+      const result = await PrestamosController.obtenerListaPrestamos(idCliente);
 
       if (!result.success) {
-        return res.status(404).json({ message: result.message });
+        return res.status(500).json({ message: result.message });
       }
 
-      res.status(200).json({ prestamos: result.prestamos });
+      if (result.prestamos.length === 0) {
+        return res.status(404).json({ message: result.mensaje });
+      }
+
+      res.status(200).json({
+        prestamos: result.prestamos,
+        mensaje: result.mensaje
+      });
     } catch (e) {
       console.error('Error en listaPrestamos:', e);
       res.status(500).json({ error: e.message });
@@ -62,7 +84,6 @@ export class ApiPrestamo {
 
   static async eliminarPrestamo (req, res) {
     try {
-      // Capturar el ID desde los parámetros de consulta
       const { idPrestamos } = req.query;
 
       console.log('ID recibido desde la URL (query):', idPrestamos);
@@ -125,18 +146,22 @@ export class ApiPrestamo {
       console.log('Datos recibidos en req.body:', req.body);
 
       const {
-        idPrestamos, monto, plazoMeses, fechaInicio, tasaInteresMoratoria, estadoPrestamo,
-        diaPago, IdClientes, clientesPersonaCedula, numeroPrestamo
+        idPrestamos, monto, plazoMeses, fechaInicio, numeroPrestamo,
+        tasaInteresMoratoria, tasaInteresAnual, estadoPrestamo,
+        diaPago, IdClientes, clientesPersonaCedula
       } = req.body;
 
-      if (!idPrestamos || !monto || !plazoMeses || !fechaInicio || !tasaInteresMoratoria || !estadoPrestamo || !diaPago || !IdClientes || !clientesPersonaCedula) {
+      if (!idPrestamos || !monto || !plazoMeses || !fechaInicio ||
+            !tasaInteresMoratoria || !tasaInteresAnual || !estadoPrestamo ||
+            !diaPago || !IdClientes || !clientesPersonaCedula) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
       }
 
-      console.log('Datos de préstamo:', { idPrestamos, monto, plazoMeses, fechaInicio, tasaInteresMoratoria, estadoPrestamo, diaPago, IdClientes, clientesPersonaCedula });
+      console.log('Datos de préstamo:', { idPrestamos, monto, plazoMeses, fechaInicio, tasaInteresMoratoria, tasaInteresAnual, estadoPrestamo, diaPago, IdClientes, clientesPersonaCedula });
 
       const resultado = await PrestamosController.modificarPrestamo(
-        idPrestamos, monto, plazoMeses, fechaInicio, numeroPrestamo, tasaInteresMoratoria, estadoPrestamo,
+        idPrestamos, monto, plazoMeses, fechaInicio, numeroPrestamo,
+        tasaInteresMoratoria, tasaInteresAnual, estadoPrestamo,
         diaPago, IdClientes, clientesPersonaCedula
       );
 
@@ -148,6 +173,48 @@ export class ApiPrestamo {
     } catch (e) {
       console.error('Error en actualizarPrestamo:', e);
       return res.status(500).json({ error: 'Error interno al procesar la solicitud.' });
+    }
+  }
+
+  static async rechazar (req, res) {
+    try {
+      const { idPrestamo } = req.body;
+
+      if (!idPrestamo) {
+        return res.status(400).json({ message: 'El idPrestamo es obligatorio.' });
+      }
+
+      const result = await PrestamosController.rechazarPrestamo(idPrestamo);
+
+      if (!result.success) {
+        return res.status(404).json({ message: result.message });
+      }
+
+      res.status(200).json({ message: result.message });
+    } catch (error) {
+      console.error('Error en rechazar:', error);
+      res.status(500).json({ error: 'Error interno al rechazar el préstamo.' });
+    }
+  }
+
+  static async aprobar (req, res) {
+    try {
+      const { idPrestamo } = req.body;
+
+      if (!idPrestamo) {
+        return res.status(400).json({ message: 'El idPrestamo es obligatorio.' });
+      }
+
+      const result = await PrestamosController.aprobarPrestamo(idPrestamo);
+
+      if (!result.success) {
+        return res.status(404).json({ message: result.message });
+      }
+
+      res.status(200).json({ message: result.message });
+    } catch (error) {
+      console.error('Error en aprobar:', error);
+      res.status(500).json({ error: 'Error interno al aprobar el préstamo.' });
     }
   }
 }

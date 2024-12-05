@@ -102,19 +102,26 @@ POST http://localhost:3333/prestamos/nuevoPrestamo
 
 Content-Type: application/json
 {
-  "monto": 5000.00,
+  "monto": 50000,
   "plazoMeses": 12,
-  "fechaInicio": "2024-11-25",
-  "numeroPrestamo": "P124574",
-  "tasaInteresMoratoria": 5.5,
+  "fechaInicio": "2024-01-01",
+  "numeroPrestamo": "PRE-9",
+  "tasaInteresMoratoria": 5.00,
+  "tasaInteresAnual": 12.00,
   "estadoPrestamo": 2,
   "diaPago": 15,
-  "IdClientes": 1,
-  "clientesPersonaCedula": 108000652
+  "IdClientes": 21,
+  "clientesPersonaCedula": 118780671
 }
+
+
 
 ###Ultimo  préstamo
 get http://localhost:3333/prestamos/obtenerultimo
+Content-Type: application/json
+
+###Obtener todos los prestamos 
+get http://localhost:3333/prestamos/listaPrestamos
 Content-Type: application/json
 
 ###obtener prestamo por cédula
@@ -126,18 +133,64 @@ Content-Type: application/json
 curl -X PUT http://localhost:3333/prestamos/actualizarPrestamo \
   -H "Content-Type: application/json" \
   -d '{
-  "idPrestamos": 12,
+  "idPrestamos": 53,
   "monto": 50000,
   "plazoMeses": 12,
   "fechaInicio": "2024-12-01",
-  "numeroPrestamo": "PRE-12345",
+  "numeroPrestamo": "PRE-3",
   "tasaInteresMoratoria": 5.25,
   "estadoPrestamo": 2,
   "diaPago": 15,
-  "IdClientes": 1,
+  "IdClientes": 20,
   "clientesPersonaCedula": "108000650"
 }
 '
 
 ###Eliminar Prestamo
 DELETE "http://localhost:3333/prestamos/eliminarPrestamo?idPrestamos=48"
+
+###Aprobar prestamo
+PUT "http://localhost:3333/prestamos/aprobar"
+
+Content-Type: application/json
+{
+  "idPrestamo": 56
+}
+
+###Rechazar préstamo 
+PUT "http://localhost:3333/prestamos/rechazar"
+
+Content-Type: application/json
+{
+  "idPrestamo": 53
+}
+
+
+###FORMALIZACION PRESTAMOS
+###AGREGAR
+POST http://localhost:3333/formalizacion/agregar
+
+Content-Type: application/json
+{
+    "analistaIdAnalista": 1,
+    "analistaPersonaCedula": 12345678,
+    "prestamoClienteCuota": 500.00,
+    "prestamoscliente_idPrestamos": 1
+}
+
+###Modificar
+PUT "http://localhost:3333/formalizacion/modificar"
+Content-Type: application/json
+{
+    "idPrestamoFormal": 1,
+    "analistaIdAnalista": 13,
+    "analistaPersonaCedula": 987654321,
+    "prestamoClienteCuota":700 ,
+    "prestamoscliente_idPrestamos": 53
+}
+
+###Listar Formalizaciones
+GET http://localhost:3333/formalizacion/listar
+
+###Eliminar Formalizacion
+DELETE http://localhost:3333/formalizacion/eliminar/1

@@ -8,6 +8,7 @@ export class PrestamosController {
     fechaInicio,
     numeroPrestamo,
     tasaInteresMoratoria,
+    tasaInteresAnual,
     fechaVencimiento,
     diaPago,
     IdClientes,
@@ -15,13 +16,14 @@ export class PrestamosController {
   }) => {
     try {
       const [result] = await connection.query(
-        'CALL agregarPrestamo(?, ?, ?, ?, ?, ?, ?, ?, ?);',
+        'CALL agregarPrestamo(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
         [
           monto,
           plazoMeses,
           fechaInicio,
           numeroPrestamo,
           tasaInteresMoratoria,
+          tasaInteresAnual,
           fechaVencimiento,
           diaPago,
           IdClientes,
@@ -40,14 +42,21 @@ export class PrestamosController {
     }
   };
 
-  static async obtenerListaPrestamos () {
+  static async obtenerListaPrestamos (idCliente = null) {
     try {
-      const query = 'SELECT * FROM prestamoscliente';
-      const [rows] = await connection.query(query);
-      return rows;
+      const [result] = await connection.query('CALL leerPrestamo(?);', [idCliente]);
+
+      if (!result || result.length === 0) {
+        return { success: false, message: 'No se encontraron datos.' };
+      }
+
+      const prestamos = result;
+      const mensaje = prestamos[0]?.mensaje || 'Consulta realizada correctamente.';
+
+      return { success: true, mensaje, prestamos };
     } catch (error) {
       console.error('Error al obtener los préstamos:', error);
-      throw error;
+      return { success: false, message: 'Error al ejecutar el SP leerPrestamo.' };
     }
   }
 
@@ -83,35 +92,19 @@ export class PrestamosController {
     }
   }
 
-  static async modificarPrestamo (idPrestamos, monto, plazoMeses, fechaInicio, numeroPrestamo, tasaInteresMoratoria, estadoPrestamo, diaPago, IdClientes, clientesPersonaCedula) {
+  static async modificarPrestamo (
+    idPrestamos, monto, plazoMeses, fechaInicio, numeroPrestamo,
+    tasaInteresMoratoria, tasaInteresAnual, estadoPrestamo,
+    diaPago, IdClientes, clientesPersonaCedula
+  ) {
     try {
       const fechaVencimiento = new Date(fechaInicio);
       fechaVencimiento.setMonth(fechaVencimiento.getMonth() + plazoMeses);
       console.log('Fecha de vencimiento calculada:', fechaVencimiento.toISOString());
 
-      const datosOriginales = await PrestamosController.obtenerListaPrestamos();
-
-      if (!Array.isArray(datosOriginales)) {
-        console.error('Error: Los datos originales no son un arreglo.');
-        return { error: 'Error al obtener los datos originales del préstamo.' };
-      }
-
-      const datosModificados = [
-        monto, plazoMeses, fechaInicio, numeroPrestamo, tasaInteresMoratoria, estadoPrestamo, diaPago, IdClientes, clientesPersonaCedula
-      ];
-
-      const hayCambios = datosOriginales.some((dato, index) => {
-        return dato !== datosModificados[index];
-      });
-
-      if (!hayCambios) {
-        console.warn('No hubo cambios en los datos del préstamo.');
-        return { error: 'No hubo cambios en los datos del préstamo.' };
-      }
-
       const query = `
-      CALL modificarPrestamo(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @mensajeExito);
-    `;
+            CALL modificarPrestamo(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @mensajeExito);
+        `;
 
       const [result] = await connection.query(query, [
         idPrestamos,
@@ -120,6 +113,7 @@ export class PrestamosController {
         fechaInicio,
         numeroPrestamo,
         tasaInteresMoratoria,
+        tasaInteresAnual,
         estadoPrestamo,
         diaPago,
         IdClientes,
@@ -171,6 +165,38 @@ export class PrestamosController {
       return { success: false, message: 'Error desconocido.' };
     } catch (error) {
       console.error('Error en eliminarPrestamo:', error);
+      return { success: false, message: 'Error al ejecutar el procedimiento almacenado.' };
+    }
+  }
+
+  static async aprobarPrestamo (idPrestamo) {
+    try {
+      const query = 'CALL aprobarPrestamo(?)';
+      const [result] = await connection.query(query, [idPrestamo]);
+
+      if (result.affectedRows > 0) {
+        return { success: true, message: 'El préstamo fue aprobado correctamente.' };
+      } else {
+        return { success: false, message: 'No se encontró el préstamo con el ID proporcionado.' };
+      }
+    } catch (error) {
+      console.error('Error en aprobarPrestamo:', error);
+      return { success: false, message: 'Error al ejecutar el procedimiento almacenado.' };
+    }
+  }
+
+  static async rechazarPrestamo (idPrestamo) {
+    try {
+      const query = 'CALL rechazarPrestamo(?)';
+      const [result] = await connection.query(query, [idPrestamo]);
+
+      if (result.affectedRows > 0) {
+        return { success: true, message: 'El préstamo fue rechazado correctamente.' };
+      } else {
+        return { success: false, message: 'No se encontró el préstamo con el ID proporcionado.' };
+      }
+    } catch (error) {
+      console.error('Error en rechazarPrestamo:', error);
       return { success: false, message: 'Error al ejecutar el procedimiento almacenado.' };
     }
   }

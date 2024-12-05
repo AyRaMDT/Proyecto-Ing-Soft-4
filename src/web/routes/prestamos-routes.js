@@ -9,3 +9,5 @@ PrestamosRouter.delete('/eliminarPrestamo', ApiPrestamo.eliminarPrestamo);
 PrestamosRouter.put('/actualizarPrestamo', ApiPrestamo.actualizarPrestamo);
 PrestamosRouter.get('/obtenerultimo', ApiPrestamo.ultimoPrestamo);
 PrestamosRouter.get('/prestamoporcedula/:personaCedula', ApiPrestamo.obtenerPrestamosPorCedula);
+PrestamosRouter.put('/aprobar', ApiPrestamo.aprobar);
+PrestamosRouter.put('/rechazar', ApiPrestamo.rechazar);

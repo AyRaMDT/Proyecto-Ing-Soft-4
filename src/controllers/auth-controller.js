@@ -68,7 +68,7 @@ export class AuthController {
 
       if (rol === 'cliente') {
         const [cliente] = await connection.query(`
-          SELECT personaCedula, direccion, telefono, correoElectronico
+          SELECT  idClientes, personaCedula, direccion, telefono, correoElectronico
           FROM clientes
           WHERE personaCedula = ?;`, [id]
         );
