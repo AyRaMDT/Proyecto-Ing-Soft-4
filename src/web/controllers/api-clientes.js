@@ -1,81 +1,123 @@
-// import { ClienteController } from '../../controllers/clientes-controller.js';
+import { ClienteController } from '../../controllers/clientes-controller.js';
 
-// export class ApiCliente {
+export class ApiCliente {
+  static async nuevoCliente (req, res) {
+    try {
+      console.log('Datos recibidos:', req.body);
+      const { nombre, primerApellido, segundoApellido, direccion, telefono, correoElectronico, personaCedula, contrasena } = req.body;
 
-//   static async nuevoCliente(req, res) {
-//     try {
-//       console.log('Datos recibidos:', req.body);
-//       const { direccion, telefono, correoElectronico, Persona_Cedula, contrasena } = req.body;
+      if (!personaCedula) {
+        return res.status(400).json({ error: 'El campo personaCedula es obligatorio.' });
+      }
 
-//       const result = await ClienteController.insertarCliente({ direccion, telefono, correoElectronico, Persona_Cedula, contrasena });
-//       res.status(201).json({ message: result.message });
-//     } catch (e) {
-//       console.error(e);
-//       res.status(500).json({ error: e.message });
-//     }
-//   }
+      const result = await ClienteController.insertarCliente({
+        nombre,
+        primerApellido,
+        segundoApellido,
+        personaCedula,
+        direccion,
+        telefono,
+        correoElectronico,
+        contrasena
+      });
 
-//   static async listaClientes(req, res) {
-//     try {
-//       const result = await ClienteController.obtenerListaClientes();
+      res.status(201).json({ message: result.message });
+    } catch (e) {
+      console.error('Error en nuevoCliente:', e);
+      res.status(500).json({ error: e.message });
+    }
+  }
 
-//       if (!result.success) {
+  static async listaClientes (req, res) {
+    try {
+      const result = await ClienteController.obtenerListaClientes();
 
-//         return res.status(404).json({ message: result.message });
-//       }
+      if (!result.success) {
+        return res.status(404).json({ message: result.message });
+      }
 
-//       res.status(200).json({ clientes: result.clientes });
-//     } catch (e) {
-//       console.error(e);
-//       res.status(500).json({ error: e.message });
-//     }
-//   }
+      res.status(200).json({ clientes: result.clientes });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: e.message });
+    }
+  }
 
-//   static async eliminarCliente(req, res) {
-//     try {
-//       const { Persona_Cedula } = req.query;
+  static async eliminarCliente (req, res) {
+    try {
+      const { idClientes } = req.query;
 
-//       const result = await ClienteController.eliminarCliente({ Persona_Cedula });
+      if (!idClientes) {
+        return res.status(400).json({ message: 'El ID del cliente es requerido' });
+      }
 
-//       if (!result.success) {
+      const result = await ClienteController.eliminarCliente({ idClientes });
 
-//         return res.status(404).json({ message: result.message });
-//       }
+      if (result.success && result.affectedRows === 1) {
+        return res.status(200).json({ message: result.message });
+      } else {
+        return res.status(404).json({ message: result.message });
+      }
+    } catch (e) {
+      console.error('Error al eliminar el cliente:', e);
+      res.status(500).json({ error: e.message });
+    }
+  }
 
-//       res.status(200).json({ message: result.message });
-//     } catch (e) {
-//       console.error(e);
-//       res.status(500).json({ error: e.message });
-//     }
-//   }
+  static async modificarCliente (req, res) {
+    try {
+      console.log('Datos recibidos en el backend:', req.body);
 
-// static async modificarCliente(req, res) {
-//     try {
-//       const { idClientes, direccion, telefono, correoElectronico, Persona_Cedula, contrasena } = req.body;
+      const { idClientes, nombre, primerApellido, segundoApellido, direccion, telefono, correoElectronico } = req.body;
 
-//       if (!direccion || !telefono || !correoElectronico || !Persona_Cedula || !contrasena) {
-//         return res.status(400).json({ message: "Todos los campos son requeridos" });
-//       }
+      if (!idClientes || !nombre || !primerApellido || !segundoApellido || !direccion || !telefono || !correoElectronico) {
+        console.error('Faltan campos requeridos en los datos enviados:', req.body);
+        return res.status(400).json({ message: 'Todos los campos son requeridos excepto la contraseña' });
+      }
 
-//       const result = await ClienteController.modificarCliente({
-//         idClientes,
-//         direccion,
-//         telefono,
-//         correoElectronico,
-//         Persona_Cedula,
-//         contrasena
-//       });
+      const result = await ClienteController.modificarCliente({
+        idClientes,
+        nombre,
+        primerApellido,
+        segundoApellido,
+        direccion,
+        telefono,
+        correoElectronico
+      });
 
-//       if (!result.success) {
-//         return res.status(404).json({ message: result.message });
-//       }
+      console.log('Resultado de la llamada al procedimiento:', result);
 
-//       res.status(200).json({ message: result.message });
+      if (!result.success) {
+        console.error('Error al modificar cliente:', result.message);
+        return res.status(404).json({ message: result.message });
+      }
 
-//     } catch (e) {
-//       console.error(e);
-//       res.status(500).json({ error: e.message });
-//     }
-//   }
+      res.status(200).json({ message: result.message });
+    } catch (e) {
+      console.error('Error al modificar cliente:', e.message);
+      console.error('Detalles completos del error:', e);
+      return res.status(500).json({ error: e.message, stack: e.stack });
+    }
+  }
 
-// }
+  static async leerClientePorId (req, res) {
+    try {
+      const { idClientes } = req.query;
+
+      if (!idClientes) {
+        return res.status(400).json({ message: 'El ID del cliente es requerido' });
+      }
+
+      const result = await ClienteController.leerClientePorId(idClientes);
+
+      if (!result.success) {
+        return res.status(404).json({ message: result.message });
+      }
+
+      res.status(200).json({ message: result.message, cliente: result.cliente });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: e.message });
+    }
+  }
+}

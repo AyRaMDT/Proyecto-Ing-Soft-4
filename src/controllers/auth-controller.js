@@ -1,112 +1,89 @@
 import { connectDB } from '../database.js';
-import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const connection = await connectDB();
+const TOKEN_SECRET = 'secretpassword';
 
 export class AuthController {
-  static async registarPersona ({ cedula, nombre, primerApellido, segundoApellido }) {
-    try {
-      // verificar si el analista ya existe
-      const [persona] = await connection.query(`
-      SELECT cedula
-      FROM Persona
-      WHERE cedula = ?;`, [cedula]);
-
-      if (persona.length > 0) {
-        return { success: false, errors: { cedula: ['ya existe un persona registrada con este numero de cedula'] } };
-      }
-
-      // si no existe se crea uno
-      await connection.query(`
-        INSERT INTO Persona(cedula, nombre, primerApellido, segundoApellido)
-        VALUES (?, ?, ?, ?);`, [
-        cedula,
-        nombre,
-        primerApellido,
-        segundoApellido
-      ]);
-
-      // se selecciona para devolver el nuevo analista creado
-      const [personaNueva] = await connection.query(`
-        SELECT cedula, nombre, primerApellido, segundoApellido
-        FROM Persona
-        WHERE cedula = ?;`, [cedula]
-      );
-
-      return { success: true, message: 'Persona creada correctamente', persona: personaNueva[0] };
-    } catch (e) {
-      throw Error('Un error ocurrio al crear la Persona');
-    }
-  }
-
-  static async registarAnalista ({ telefono, correoElectronico, contrasena, cedula }) {
-    try {
-      // verificar si el analista ya existe
-      const [analista] = await connection.query(`
-      SELECT persona_cedula
-      FROM analistaCredito
-      WHERE persona_cedula = ?;`, [cedula]);
-
-      if (analista.length > 0) {
-        return { success: false, errors: { cedula: ['ya existe un analista registrado con este numero de cedula'] } };
-      }
-
-      // si no existe se crea uno
-      const encryptedPassword = await bcrypt.hash(contrasena, 10);
-      await connection.query(`
-        INSERT INTO analistaCredito(telefono, correoElectronico, contrasena, persona_cedula)
-        VALUES (?, ?, ?, ?);`, [
-        telefono,
-        correoElectronico,
-        encryptedPassword,
-        cedula
-      ]
-      );
-
-      // se selecciona para devolver el nuevo analista creado
-      const [analistaNuevo] = await connection.query(`
-        SELECT idanalistaCredito, telefono, contrasena, persona_cedula
-        FROM analistaCredito
-        WHERE persona_cedula = ?;`, [cedula]
-      );
-
-      return { success: true, message: 'Analista creado correctamente', analista: analistaNuevo[0] };
-    } catch (e) {
-      throw Error('Un error ocurrio al crear el analista');
-    }
-  }
-
   static async iniciarSesion ({ personaCedula, contrasena }) {
     try {
       const [analista] = await connection.query(`
-        SELECT idanalistaCredito, contrasena, persona_cedula
+        SELECT idanalistaCredito AS id, 'analista' AS rol, contrasena, personaCedula
         FROM analistaCredito
-        WHERE persona_cedula = ?;`, [personaCedula]
+        WHERE personaCedula = ?;`, [personaCedula]
       );
 
-      // console.log(analista);
+      if (analista.length > 0) {
+        const { id, rol, contrasena: storedPassword } = analista[0];
 
-      // verify if password is valid
-      const { contrasena: hashedPassword } = analista[0];
-      const isValid = await bcrypt.compare(contrasena, hashedPassword);
+        if (contrasena !== storedPassword) {
+          return { success: false, message: 'Número de cédula o contraseña incorrectos' };
+        }
 
-      if (analista.length === 0 || !isValid) {
-        return { success: false, message: 'Numero de cedula o contrasenna incorrecta' };
+        const token = jwt.sign({ id, rol }, TOKEN_SECRET, { expiresIn: '1h' });
+
+        return { success: true, token, message: `Bienvenido, ${rol}`, rol };
       }
 
-      return { success: true, message: 'Bienvenido', analista: analista[0] };
-    } catch (e) {
-      throw Error('Un error ocurrio al iniciar sesion');
+      const [cliente] = await connection.query(`
+        SELECT personaCedula AS id, 'cliente' AS rol, contrasena, direccion, telefono, correoElectronico
+        FROM clientes
+        WHERE personaCedula = ?;`, [personaCedula]
+      );
+
+      if (cliente.length > 0) {
+        const { id, rol, contrasena: storedPassword } = cliente[0];
+
+        if (contrasena !== storedPassword) {
+          return { success: false, message: 'Número de cédula o contraseña incorrectos' };
+        }
+
+        const token = jwt.sign({ id, rol }, TOKEN_SECRET, { expiresIn: '1h' });
+
+        return { success: true, token, message: `Bienvenido, ${rol}`, rol };
+      }
+
+      return { success: false, message: 'Número de cédula o contraseña incorrectos' };
+    } catch (error) {
+      console.error('Error al iniciar sesión:', error);
+      throw new Error('Un error ocurrió al iniciar sesión');
     }
   }
 
-  static async profile ({ idanalistaCredito }) {
-    const [analista] = await connection.query(`
-      SELECT idanalistaCredito, telefono, correoElectronico, contrasena, persona_cedula
-      FROM analistaCredito
-      WHERE idanalistaCredito = ?;`, [idanalistaCredito]
-    );
+  static async perfil ({ id, rol }) {
+    try {
+      if (rol === 'analista') {
+        const [analista] = await connection.query(`
+          SELECT idanalistaCredito, telefono, correoElectronico, personaCedula
+          FROM analistaCredito
+          WHERE idanalistaCredito = ?;`, [id]
+        );
 
-    return { success: true, analista: analista[0] };
+        if (analista.length === 0) {
+          return { success: false, message: 'Perfil no encontrado' };
+        }
+
+        return { success: true, perfil: { ...analista[0], rol } };
+      }
+
+      if (rol === 'cliente') {
+        const [cliente] = await connection.query(`
+          SELECT  idClientes, personaCedula, direccion, telefono, correoElectronico
+          FROM clientes
+          WHERE personaCedula = ?;`, [id]
+        );
+
+        if (cliente.length === 0) {
+          return { success: false, message: 'Perfil no encontrado' };
+        }
+
+        return { success: true, perfil: { ...cliente[0], rol } };
+      }
+
+      return { success: false, message: 'Rol no válido' };
+    } catch (error) {
+      console.error('Error al obtener el perfil:', error);
+      throw new Error('Error al obtener el perfil');
+    }
   }
 }

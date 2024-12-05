@@ -1,68 +1,46 @@
-//PERSONAS
-### CREAR PERSONA  CREATE
-POST http://localhost:3333/persona/crear-persona
-Content-Type: application/json
-
-{
-  "cedula": 115100494,
-  "nombre": "Adonay",
-  "primerApellido": "Chacon",
-  "segundoApellido": "Soto"
-}
-
-###MODIFICAR PERSONA UPDATE
-curl -X PUT http://localhost:3333/persona/modificar-persona \
--H "Content-Type: application/json" \
--d '{
-  "cedula": 118780671,
-  "nombre": "Ana",
-  "primerApellido": "Quesada",
-  "segundoApellido": "Soto"
-}'
-
-
-### OBTENER LISTA DE PERSONAS READ
-GET  http://localhost:3333/persona/obtener-persona
-Content-Type: application/json
-
-
-###ELIMINAR PERSONA DELETE
-DELETE http://localhost:3333/persona/eliminar-persona?cedula=115100494
-
-
 //CLIENTES
+
 ###OBTENER LISTA DE CLIENTES READ
 GET http://localhost:3333/cliente/obtener-clientes
 Content-Type: application/json
 
+###Obtener cliente por ID
+GET http://localhost:3333/cliente/leer-cliente?idClientes=4
 
-###CREAR UN NUEVO CLIENTE CREATE
+Content-Type: application/json
+
+### REGISTAR UN NUEVO CLIENTE (CREATE) 
 POST http://localhost:3333/cliente/crear-cliente
+
 Content-Type: application/json
 {
-    "idClientes": 4,
-    "direccion": "Calle 13",
-    "telefono": 86161747,
-    "correoElectronico": "Correo@example.com",
-    "Persona_Cedula": 115100494,
-    "contrasena": "contraseña"
+  "nombre": "Noelia",
+  "primerApellido": "Cordero",
+  "segundoApellido": "Soto",
+  "direccion": "Calle Ficticia 123",
+  "telefono": "1234567890",
+  "correoElectronico": "juan.perez@email.com",
+  "personaCedula": 118780679,
+  "contrasena": "12345"
 }
 
-###Modificar Cliente UPDATE
+###MODIFICAR CLIENTE
 curl -X PUT http://localhost:3333/cliente/modificar-cliente \
-     -H "Content-Type: application/json" \
-     -d '{
-           "idClientes": 4,
-           "direccion": "Nueva Calle 13",
-           "telefono": 86161748,
-           "correoElectronico": "NuevoCorreo@example.com",
-           "Persona_Cedula": 115100494,
-           "contrasena": "nuevaContraseña"
-         }'
+-H "Content-Type: application/json" \
+-d '{
+  "idClientes": 2,
+  "nombre": "Belen",
+  "primerApellido": "Quesada",
+  "segundoApellido": "Soto",
+  "direccion": "Calle Ficticia 123",
+  "telefono": "1234567890",
+  "correoElectronico": "juan.perez@email.com",
+  "personaCedula": 123456788
+}'
 
-###Eliminar Cliente DELETE
-DELETE "http://localhost:3333/cliente/eliminar-cliente?Persona_Cedula=115100494"
-Content-Type: application/json
+###ELIMINAR CLIENTE
+DELETE http://localhost:3333/cliente/eliminar-cliente?idClientes=7
+
 
 //ANALISTAS
 
@@ -73,27 +51,44 @@ Content-Type: application/json
 
 
 ### REGISTAR UN NUEVO ANALISTA (CREATE) 
-POST http://localhost:3333/auth/register
+POST http://localhost:3333/analistas/insertar
 Content-Type: application/json
-
 {
-  "cedula": 1111111,
-  "nombre": "nombreEjemplo",
-  "primerApellido": "apellidoEjemplo",
-  "segundoApellido": "apellido2Ejemplo",
-  "telefono": 61279057,
-  "correoElectronico": "analista@example.com",
-  "contrasena": "contraseñaa"
+    "nombre": "Juan",
+    "primerApellido": "Perez",
+    "segundoApellido": "Lopez",
+    "personaCedula": "123456789",
+    "telefono": "1234567890",
+    "correoElectronico": "juan.perez@ejemplo.com",
+    "contrasena": "contrasenaSegura123"
 }
+
+
+###MODIFICAR UN ANALISTA UPDATE
+curl -X PUT http://localhost:3333/analistas/modificar \
+-H "Content-Type: application/json" \
+-d '{
+      "idanalistaCredito": 2,
+      "nombre": "Pedro",
+      "primerApellido": "Perez",
+      "segundoApellido": "Lopez",
+      "personaCedula": "123456789",
+      "telefono": "1234567890",
+      "correoElectronico": "juan.perez@ejemplo.com",
+      "contrasena": "contrasenaSegura123"
+}'
+
+###ELIMINAR UN ANALISTA DELETE
+DELETE http://localhost:3333/analistas/eliminar?idanalistaCredito=4
+
+
+
 
 ### LOGIN
-POST http://localhost:3333/auth/login
-Content-Type: application/json
+curl -X POST http://localhost:3333/auth/login \
+-H "Content-Type: application/json" \
+-d '{"personaCedula": "118780671", "contrasena": "123456"}'
 
-{
-  "personaCedula": 1111111,
-  "contrasena": "contraseñaa"
-}
 
 ### LOGOUT
 POST http://localhost:3333/auth/logout
@@ -101,28 +96,101 @@ POST http://localhost:3333/auth/logout
 ### PROFILE (RUTA PROTEGIDA) se obtienen los datos del usuario que inicio sesion
 GET http://localhost:3333/auth/profile
 
+###PRESTAMOS
+###Agregar nuevo préstamo
+POST http://localhost:3333/prestamos/nuevoPrestamo 
 
-# ###CREAR UN NUEVO ANALISTA CREATE
-# POST http://localhost:3333/analistas/insertar
-# Content-Type: application/json
-# {
-#        "idanalistaCredito": 4,
-#         "telefono": 86161747,
-#         "correoElectronico": "analista@example.com",
-#         "contrasena": "contraseña",
-#         "Persona_Cedula": 115100494
-# }
+Content-Type: application/json
+{
+  "monto": 50000,
+  "plazoMeses": 12,
+  "fechaInicio": "2024-01-01",
+  "numeroPrestamo": "PRE-9",
+  "tasaInteresMoratoria": 5.00,
+  "tasaInteresAnual": 12.00,
+  "estadoPrestamo": 2,
+  "diaPago": 15,
+  "IdClientes": 21,
+  "clientesPersonaCedula": 118780671
+}
 
-###MODIFICAR UN ANALISTA UPDATE
-curl -X PUT http://localhost:3333/analistas/modificar \
--H "Content-Type: application/json" \
--d '{
-      "idanalistaCredito": 3,
-        "telefono": 86161747,
-        "correoElectronico": "analista@example.com",
-        "contrasena": "contraseña",
-        "Persona_Cedula": 115100494
+
+
+###Ultimo  préstamo
+get http://localhost:3333/prestamos/obtenerultimo
+Content-Type: application/json
+
+###Obtener todos los prestamos 
+get http://localhost:3333/prestamos/listaPrestamos
+Content-Type: application/json
+
+###obtener prestamo por cédula
+GET "http://localhost:3333/prestamos/prestamoporcedula/118780671"
+
+Content-Type: application/json
+
+###Modificar préstamo
+curl -X PUT http://localhost:3333/prestamos/actualizarPrestamo \
+  -H "Content-Type: application/json" \
+  -d '{
+  "idPrestamos": 53,
+  "monto": 50000,
+  "plazoMeses": 12,
+  "fechaInicio": "2024-12-01",
+  "numeroPrestamo": "PRE-3",
+  "tasaInteresMoratoria": 5.25,
+  "estadoPrestamo": 2,
+  "diaPago": 15,
+  "IdClientes": 20,
+  "clientesPersonaCedula": "108000650"
 }
 '
-###ELIMINAR UN ANALISTA DELETE
-DELETE http://localhost:3333/analistas/eliminar?personaCedula=115100494
+
+###Eliminar Prestamo
+DELETE "http://localhost:3333/prestamos/eliminarPrestamo?idPrestamos=48"
+
+###Aprobar prestamo
+PUT "http://localhost:3333/prestamos/aprobar"
+
+Content-Type: application/json
+{
+  "idPrestamo": 56
+}
+
+###Rechazar préstamo 
+PUT "http://localhost:3333/prestamos/rechazar"
+
+Content-Type: application/json
+{
+  "idPrestamo": 53
+}
+
+
+###FORMALIZACION PRESTAMOS
+###AGREGAR
+POST http://localhost:3333/formalizacion/agregar
+
+Content-Type: application/json
+{
+    "analistaIdAnalista": 1,
+    "analistaPersonaCedula": 12345678,
+    "prestamoClienteCuota": 500.00,
+    "prestamoscliente_idPrestamos": 1
+}
+
+###Modificar
+PUT "http://localhost:3333/formalizacion/modificar"
+Content-Type: application/json
+{
+    "idPrestamoFormal": 1,
+    "analistaIdAnalista": 13,
+    "analistaPersonaCedula": 987654321,
+    "prestamoClienteCuota":700 ,
+    "prestamoscliente_idPrestamos": 53
+}
+
+###Listar Formalizaciones
+GET http://localhost:3333/formalizacion/listar
+
+###Eliminar Formalizacion
+DELETE http://localhost:3333/formalizacion/eliminar/1
