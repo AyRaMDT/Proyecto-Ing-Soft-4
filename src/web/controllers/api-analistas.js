@@ -39,7 +39,9 @@ export class ApiAnalista {
 
   static async eliminarAnalista (req, res) {
     try {
-      const { idanalistaCredito } = req.query;
+      const { idanalistaCredito } = req.params; // Verifica que estás accediendo a req.params
+
+      console.log('ID recibido en el backend:', idanalistaCredito); // Depuración
 
       if (!idanalistaCredito) {
         return res.status(400).json({ message: 'Se requiere el ID del analista' });
@@ -60,33 +62,45 @@ export class ApiAnalista {
 
   static async modificarAnalista (req, res) {
     try {
-      console.log(req.body);
+      console.log('Request body received:', req.body); // Debugging
 
-      const { idanalistaCredito, nombre, primerApellido, segundoApellido, telefono, correoElectronico, contrasena, personaCedula } = req.body;
-
-      if (!idanalistaCredito || !nombre || !primerApellido || !segundoApellido || !telefono || !correoElectronico || !contrasena || !personaCedula) {
-        return res.status(400).json({ message: 'Todos los campos son requeridos' });
-      }
-
-      const result = await AnalistasController.modificarAnalista({
+      const {
+        personaCedula,
         idanalistaCredito,
         nombre,
         primerApellido,
         segundoApellido,
         telefono,
         correoElectronico,
-        contrasena,
-        personaCedula
-      });
+        contrasena
+      } = req.body;
 
-      if (!result.success) {
-        return res.status(400).json({ message: result.message });
+      if (!personaCedula) {
+        return res.status(400).json({ message: 'El número de cédula es obligatorio.' });
       }
 
-      res.status(200).json({ message: result.message });
-    } catch (e) {
-      console.error(e);
-      res.status(500).json({ error: e.message });
+      // Business logic or database call
+      const result = await AnalistasController.modificarAnalista({
+        personaCedula,
+        idanalistaCredito,
+        nombre,
+        primerApellido,
+        segundoApellido,
+        telefono,
+        correoElectronico,
+        contrasena
+      });
+
+      if (result.success) {
+        return res.status(200).json({ message: result.message, persona: result.persona });
+      } else {
+        return res.status(400).json({ message: result.message });
+      }
+    } catch (error) {
+      console.error('Error in modificarAnalista:', error);
+      return res.status(500).json({ message: 'Error interno del servidor.' });
     }
   }
 }
+
+export default ApiAnalista;

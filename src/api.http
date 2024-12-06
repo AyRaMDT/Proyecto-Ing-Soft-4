@@ -192,5 +192,25 @@ Content-Type: application/json
 ###Listar Formalizaciones
 GET http://localhost:3333/formalizacion/listar
 
+###Listar Formalizaciones Completas
+GET http://localhost:3333/formalizacion/listarTODO
+
 ###Eliminar Formalizacion
-DELETE http://localhost:3333/formalizacion/eliminar/1
+DELETE http://localhost:3333/formalizacion/rechazar?prestamoFormalId=12&estadoRechazadoId=3
+
+
+###Modificar toda la info
+PUT "http://localhost:3333/formalizacion/modificarTODO"
+Content-Type: application/json
+{
+  "prestamoFormalId": 14,
+  "analistaId": 13,
+  "analistaCedula": "987654321",
+  "cuota": 500.0,
+  "monto": 10000.0,
+  "plazoMeses": 24,
+  "fechaInicio": "2023-01-01",
+  "fechaVencimiento": "2025-01-01",
+  "diaPago": 15,
+  "estadoPrestamoId": 2
+}

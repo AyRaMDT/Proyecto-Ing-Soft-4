@@ -37,10 +37,19 @@ class AnalistasController {
     }
   }
 
-  static async modificarAnalista ({ idanalistaCredito, nombre, primerApellido, segundoApellido, telefono, correoElectronico, contrasena }) {
+  static async modificarAnalista ({
+    personaCedula,
+    idanalistaCredito,
+    nombre,
+    primerApellido,
+    segundoApellido,
+    telefono,
+    correoElectronico,
+    contrasena
+  }) {
     try {
-      const connection = await connectDB();
-      const [rows] = await connection.query('CALL modificarAnalistaCredito(?, ?, ?, ?, ?, ?, ?, @mensaje)', [
+      console.log('Llamando al SP con:', {
+        personaCedula,
         idanalistaCredito,
         nombre,
         primerApellido,
@@ -48,9 +57,25 @@ class AnalistasController {
         telefono,
         correoElectronico,
         contrasena
-      ]);
+      });
 
-      const [[{ mensaje }]] = await connection.query('SELECT @mensaje as mensaje');
+      const connection = await connectDB();
+      const [rows] = await connection.query(
+        'CALL modificarAnalistaCredito(?, ?, ?, ?, ?, ?, ?, ?, @mensaje)',
+        [
+          idanalistaCredito, // INT
+          personaCedula, // INT
+          nombre, // VARCHAR(65)
+          primerApellido, // VARCHAR(65)
+          segundoApellido, // VARCHAR(65)
+          telefono, // INT
+          correoElectronico, // VARCHAR(45)
+          contrasena // VARCHAR(45)
+        ]
+      );
+
+      const [[{ mensaje }]] = await connection.query('SELECT @mensaje AS mensaje');
+      console.log('Mensaje del SP:', mensaje);
 
       if (mensaje.includes('Éxito')) {
         return { success: true, message: mensaje, persona: rows[0] };
@@ -58,14 +83,14 @@ class AnalistasController {
         return { success: false, message: mensaje };
       }
     } catch (error) {
-      console.error('Error al modificar analista:', error);
-      return { success: false, message: 'Ocurrió un error al modificar el analista: ' + error.message };
+      console.error('Error en modificarAnalista:', error);
+      return { success: false, message: 'Error al modificar el analista: ' + error.message };
     }
   }
 
   static async eliminarAnalista ({ idanalistaCredito }) {
     try {
-      console.log('ID de analista recibido:', idanalistaCredito);
+      console.log('ID de analista recibido para eliminación:', idanalistaCredito); // Depuración
 
       const [rows] = await connection.query('CALL eliminarAnalistaCredito(?, @mensaje)', [idanalistaCredito]);
 

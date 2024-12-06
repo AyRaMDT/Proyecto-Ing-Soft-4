@@ -96,4 +96,64 @@ export class FormalizacionController {
       return { success: false, message: 'Error al eliminar la formalización.' };
     }
   }
+
+  static async obtenerDatosPrestamoFormalizado () {
+    try {
+      const query = 'CALL ObtenerDatosPrestamoFormalizado()'; // Llama al procedimiento almacenado
+      const [rows] = await connection.query(query); // Ejecuta el query
+      return { success: true, data: rows[0] }; // Retorna la primera parte de los resultados
+    } catch (error) {
+      console.error('Error en obtenerDatosPrestamoFormalizado:', error);
+      return { success: false, message: 'Error al obtener los datos de préstamos formalizados.' };
+    }
+  }
+
+  static async asignarEliminarPrestamoRechazado (prestamoFormalId, estadoRechazadoId) {
+    try {
+      const query = 'CALL AsignarEliminarPrestamoRechazado(?, ?)';
+      const [result] = await connection.query(query, [prestamoFormalId, estadoRechazadoId]); // Ejecuta el procedimiento
+      console.log(result);
+      return { success: true, message: 'Préstamo formalizado eliminado y estado actualizado.' };
+    } catch (error) {
+      console.error('Error en asignarEliminarPrestamoRechazado:', error);
+      return { success: false, message: 'Error al procesar el préstamo formalizado.' };
+    }
+  }
+
+  static async modificarPrestamoFormalizado (data) {
+    try {
+      const {
+        prestamoFormalId,
+        analistaId,
+        analistaCedula,
+        cuota,
+        monto,
+        plazoMeses,
+        fechaInicio,
+        fechaVencimiento,
+        diaPago,
+        estadoPrestamoId
+      } = data; // Aquí desestructuramos desde el objeto recibido directamente
+
+      const query = 'CALL ModificarPrestamoFormalizado(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+      const params = [
+        prestamoFormalId,
+        analistaId,
+        analistaCedula,
+        cuota,
+        monto,
+        plazoMeses,
+        fechaInicio,
+        fechaVencimiento,
+        diaPago,
+        estadoPrestamoId
+      ];
+
+      await connection.query(query, params);
+      return { success: true, message: 'Préstamo formalizado actualizado correctamente.' };
+    } catch (error) {
+      console.error('Error en modificarPrestamoFormalizado:', error);
+      return { success: false, message: 'Error al modificar el préstamo formalizado.' };
+    }
+  }
 }
