@@ -28,6 +28,10 @@ export class ApiAuth {
     }
   }
 
+  static async verifyToken (req, res) {
+    return res.status(200).json({ message: 'authorized', user: req.user, rol: req.user.rol });
+  }
+
   static async profile (req, res) {
     try {
       const { id, rol } = req.user;
