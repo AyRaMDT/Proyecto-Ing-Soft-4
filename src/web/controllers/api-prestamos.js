@@ -15,10 +15,14 @@ export class ApiPrestamo {
         estadoPrestamo,
         diaPago,
         IdClientes,
-        clientesPersonaCedula
+        clientesPersonaCedula,
+        saldo
       } = req.body;
 
-      if (isNaN(Number(clientesPersonaCedula))) {
+      console.log(diaPago);
+      console.log('Valor recibido para clientesPersonaCedula:', clientesPersonaCedula, 'Tipo:', typeof clientesPersonaCedula);
+
+      if (isNaN(clientesPersonaCedula)) {
         return res.status(400).json({ error: 'El campo clientesPersonaCedula debe ser un número válido.' });
       }
 
@@ -44,7 +48,8 @@ export class ApiPrestamo {
         tasaInteresAnual, // Pass tasaInteresAnual
         diaPago,
         IdClientes,
-        clientesPersonaCedula
+        clientesPersonaCedula,
+        saldo
       });
 
       if (!result.success) {

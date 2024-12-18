@@ -12,7 +12,8 @@ export class PrestamosController {
     fechaVencimiento,
     diaPago,
     IdClientes,
-    clientesPersonaCedula
+    clientesPersonaCedula,
+    saldo
   }) => {
     try {
       const [result] = await connection.query(
