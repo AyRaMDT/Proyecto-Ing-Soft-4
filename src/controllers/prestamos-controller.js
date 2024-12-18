@@ -17,7 +17,7 @@ export class PrestamosController {
   }) => {
     try {
       const [result] = await connection.query(
-        'CALL agregarPrestamo(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+        'CALL agregarPrestamo(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
         [
           monto,
           plazoMeses,
@@ -28,7 +28,8 @@ export class PrestamosController {
           fechaVencimiento,
           diaPago,
           IdClientes,
-          clientesPersonaCedula
+          clientesPersonaCedula,
+          saldo || monto // Asegura un valor por defecto para saldo
         ]
       );
 

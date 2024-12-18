@@ -4,15 +4,36 @@ const connection = await connectDB();
 export class PagosController {
   static agregarPago = async ({ fechaPago, montoPagado, medioPago, intereses, amortizacion, cuotaPago, numeroPagos, idPrestamos }) => {
     try {
-      // Validar que el préstamo exista
-      const [prestamo] = await connection.query(
+      // Validar que el préstamo exista y obtener los datos
+      const [prestamos] = await connection.query(
         'SELECT * FROM prestamoscliente WHERE idPrestamos = ?',
         [idPrestamos]
       );
 
+      const prestamo = prestamos.length > 0 ? prestamos[0] : null;
+
       if (!prestamo) {
-        return { success: false, message: 'El prestamo no existe' };
+        return { success: false, message: 'El préstamo no existe o no tiene datos válidos.' };
       }
+
+      console.log('Prestamo obtenido:', prestamo);
+
+      // Validar que el saldo sea numérico y amortización esté definida
+      const saldoActual = parseFloat(prestamo.saldo);
+      const amortizacionNumerica = parseFloat(amortizacion);
+
+      if (isNaN(saldoActual) || isNaN(amortizacionNumerica)) {
+        console.log('Datos inválidos:', { saldoActual, amortizacionNumerica });
+        return { success: false, message: 'Datos inválidos para calcular el saldo.' };
+      }
+
+      // Validar que el pago no sea duplicado
+      const [pagoExistente] = await connection.query(
+        'SELECT * FROM pagos WHERE numeroPagos = ? AND idPrestamos = ? AND montoPagado = ?',
+        [numeroPagos, idPrestamos, montoPagado]
+      );
+
+      console.log('Pago existente encontrado:', pagoExistente);
 
       // Insertar el nuevo pago
       const [result] = await connection.query(
@@ -30,13 +51,23 @@ export class PagosController {
       );
 
       if (result.length === 0) {
-        return { success: false, message: 'No se pudo agregar el préstamo. Verifique los datos.' };
+        return { success: false, message: 'No se pudo agregar el pago. Verifique los datos.' };
       }
 
-      return { success: true };
+      // Actualizar el saldo restando la amortización
+      const saldoActualizado = saldoActual - amortizacionNumerica;
+
+      console.log('Saldo Actualizado:', saldoActualizado);
+
+      await connection.query(
+        'UPDATE prestamoscliente SET saldo = ? WHERE idPrestamos = ?',
+        [saldoActualizado, idPrestamos]
+      );
+
+      return { success: true, message: 'Pago registrado y saldo actualizado correctamente.' };
     } catch (error) {
       console.error('Error al registrar el pago:', error);
-      return { success: false, message: 'Error interno al insertar el préstamo.' };
+      return { success: false, message: 'Error interno al insertar el pago.' };
     }
   };
 

@@ -8,9 +8,9 @@ export class AuthController {
   static async iniciarSesion ({ personaCedula, contrasena }) {
     try {
       const [analista] = await connection.query(`
-        SELECT idanalistaCredito AS id, 'analista' AS rol, contrasena, Persona_Cedula
+        SELECT idanalistaCredito AS id, 'analista' AS rol, contrasena, personaCedula
         FROM analistaCredito
-        WHERE Persona_Cedula = ?;`, [personaCedula]
+        WHERE personaCedula = ?;`, [personaCedula]
       );
 
       if (analista.length > 0) {
