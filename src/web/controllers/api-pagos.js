@@ -16,10 +16,26 @@ export class ApiPago {
       } = req.body;
 
       // console.log(req.body);
-
-      if (!fechaPago || !montoPagado || !medioPago || !intereses || !amortizacion || !cuotaPago || !numeroPagos || !idPrestamos) {
-        console.log('onana');
-
+      if (
+        fechaPago === undefined ||
+        montoPagado === undefined ||
+        medioPago === undefined ||
+        intereses === undefined ||
+        amortizacion === undefined ||
+        cuotaPago === undefined ||
+        numeroPagos === undefined ||
+        idPrestamos === undefined
+      ) {
+        console.log('Campos faltantes:', {
+          fechaPago,
+          montoPagado,
+          medioPago,
+          intereses,
+          amortizacion,
+          cuotaPago,
+          numeroPagos,
+          idPrestamos
+        });
         return res.status(400).json({ mensaje: 'Todos los campos son requeridos' });
       }
 

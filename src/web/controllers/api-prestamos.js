@@ -45,11 +45,11 @@ export class ApiPrestamo {
         fechaVencimiento: fechaVencimientoStr,
         numeroPrestamo,
         tasaInteresMoratoria,
-        tasaInteresAnual, // Pass tasaInteresAnual
+        tasaInteresAnual,
         diaPago,
         IdClientes,
         clientesPersonaCedula,
-        saldo
+        saldo: saldo || monto // Asigna monto como valor por defecto para saldo
       });
 
       if (!result.success) {
