@@ -3,6 +3,7 @@ import { clienteRouter } from './web/routes/clientes-routes.js';
 import { analistasRouter } from './web/routes/analistas-routes.js';
 import { PrestamosRouter } from './web/routes/prestamos-routes.js';
 import { FormalizacionRouter } from './web/routes/formalizacion-router.js';
+import { PagosRouter } from './web/routes/pagos-routes.js';
 import cors from 'cors';
 import { authRouter } from './web/routes/auth-routes.js';
 import cookieParser from 'cookie-parser';
@@ -23,6 +24,7 @@ app.use('/analistas', analistasRouter);
 app.use('/prestamos', PrestamosRouter);
 app.use('/formalizacion', FormalizacionRouter);
 app.use('/auth', authRouter);
+app.use('/pagos', PagosRouter);
 
 app.listen(port, () => {
   console.log(`server running http://localhost:${port}`);

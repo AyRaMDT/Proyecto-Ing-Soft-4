@@ -53,6 +53,7 @@ Content-Type: application/json
 ### REGISTAR UN NUEVO ANALISTA (CREATE) 
 POST http://localhost:3333/analistas/insertar
 Content-Type: application/json
+
 {
     "nombre": "Juan",
     "primerApellido": "Perez",
@@ -97,21 +98,23 @@ POST http://localhost:3333/auth/logout
 GET http://localhost:3333/auth/profile
 
 ###PRESTAMOS
+
 ###Agregar nuevo préstamo
 POST http://localhost:3333/prestamos/nuevoPrestamo 
-
 Content-Type: application/json
+
 {
   "monto": 50000,
-  "plazoMeses": 12,
+  "plazoMeses": 24,
   "fechaInicio": "2024-01-01",
   "numeroPrestamo": "PRE-9",
   "tasaInteresMoratoria": 5.00,
   "tasaInteresAnual": 12.00,
   "estadoPrestamo": 2,
-  "diaPago": 15,
-  "IdClientes": 21,
-  "clientesPersonaCedula": 118780671
+  "diaPago": 20,
+  "IdClientes": 1,
+  "clientesPersonaCedula": 117990136,
+  "saldo": 50000
 }
 
 
