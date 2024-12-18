@@ -8,9 +8,9 @@ export class AuthController {
   static async iniciarSesion ({ personaCedula, contrasena }) {
     try {
       const [analista] = await connection.query(`
-        SELECT idAnalista AS id, 'analista' AS rol, contrasena, personaCedula
-        FROM analista
-        WHERE personaCedula = ?;`, [personaCedula]
+        SELECT idanalistaCredito AS id, 'analista' AS rol, contrasena, Persona_Cedula
+        FROM analistaCredito
+        WHERE Persona_Cedula = ?;`, [personaCedula]
       );
 
       if (analista.length > 0) {
@@ -54,9 +54,9 @@ export class AuthController {
     try {
       if (rol === 'analista') {
         const [analista] = await connection.query(`
-          SELECT *
-          FROM analista
-          WHERE idAnalista = ?;`, [id]
+          SELECT idanalistaCredito, telefono, correoElectronico, personaCedula
+          FROM analistaCredito
+          WHERE idanalistaCredito = ?;`, [id]
         );
 
         if (analista.length === 0) {
@@ -68,7 +68,7 @@ export class AuthController {
 
       if (rol === 'cliente') {
         const [cliente] = await connection.query(`
-          SELECT  *
+          SELECT  idClientes, personaCedula, direccion, telefono, correoElectronico
           FROM clientes
           WHERE personaCedula = ?;`, [id]
         );
