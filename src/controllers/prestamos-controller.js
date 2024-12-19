@@ -202,6 +202,56 @@ export class PrestamosController {
       return { success: false, message: 'Error al ejecutar el procedimiento almacenado.' };
     }
   }
+
+  static async obtenerPrestamosPorFecha (fechaInicio, fechaFin) {
+    try {
+      const [result] = await connection.query(
+        'CALL ObtenerPrestamosPorFechaYEstado(?, ?);',
+        [fechaInicio, fechaFin]
+      );
+
+      if (!result || result.length === 0) {
+        return { success: false, message: 'No se encontraron préstamos en ese rango de fechas.' };
+      }
+
+      const prestamos = result;
+      const mensaje = prestamos[0]?.mensaje || 'Consulta realizada correctamente.';
+
+      return { success: true, mensaje, prestamos };
+    } catch (error) {
+      console.error('Error en obtenerPrestamosPorFecha:', error);
+      return { success: false, message: 'Error al ejecutar el SP ObtenerPrestamosPorFechaYEstado.' };
+    }
+  }
+
+  static async obtenerSolicitudesPorFecha (fechaInicio, fechaFin) {
+    try {
+      // Ejecutar el procedimiento almacenado con las fechas
+      const [result] = await connection.query(
+        'CALL ObtenerSolicitudesPrestamosPorFecha(?, ?);',
+        [fechaInicio, fechaFin]
+      );
+
+      // Validar si la consulta devolvió resultados
+      if (!result || result.length === 0) {
+        return {
+          success: false,
+          message: 'No se encontraron solicitudes de préstamos en ese rango de fechas.'
+        };
+      }
+
+      const solicitudes = result;
+      const mensaje = solicitudes[0]?.mensaje || 'Consulta realizada correctamente.';
+
+      return { success: true, mensaje, solicitudes };
+    } catch (error) {
+      console.error('Error en obtenerSolicitudesPorFecha:', error);
+      return {
+        success: false,
+        message: 'Error al ejecutar el procedimiento almacenado ObtenerSolicitudesPrestamosPorFecha.'
+      };
+    }
+  }
 }
 
 export default PrestamosController;

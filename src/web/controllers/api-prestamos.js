@@ -222,4 +222,67 @@ export class ApiPrestamo {
       res.status(500).json({ error: 'Error interno al aprobar el préstamo.' });
     }
   }
+
+  static async listaPrestamosPorFecha (req, res) {
+    try {
+      const { fechaInicio, fechaFin } = req.query;
+
+      if (!fechaInicio || !fechaFin) {
+        return res.status(400).json({ message: 'Las fechas inicio y fin son obligatorias.' });
+      }
+
+      const result = await PrestamosController.obtenerPrestamosPorFecha(fechaInicio, fechaFin);
+
+      if (!result.success) {
+        return res.status(500).json({ message: result.message });
+      }
+
+      if (result.prestamos.length === 0) {
+        return res.status(404).json({ message: result.mensaje });
+      }
+
+      res.status(200).json({
+        prestamos: result.prestamos,
+        mensaje: result.mensaje
+      });
+    } catch (error) {
+      console.error('Error en listaPrestamosPorFecha:', error);
+      res.status(500).json({ error: 'Error interno al procesar la solicitud.' });
+    }
+  }
+
+  static async listaSolicitudesPrestamosPorFecha (req, res) {
+    try {
+      const { fechaInicio, fechaFin } = req.query;
+
+      // Validar que ambas fechas sean proporcionadas
+      if (!fechaInicio || !fechaFin) {
+        return res
+          .status(400)
+          .json({ message: 'Las fechas inicio y fin son obligatorias.' });
+      }
+
+      // Llamar al controlador para obtener los datos
+      const result = await PrestamosController.obtenerSolicitudesPorFecha(fechaInicio, fechaFin);
+
+      // Validar errores en la consulta
+      if (!result.success) {
+        return res.status(500).json({ message: result.message });
+      }
+
+      // Si no se encontraron resultados
+      if (result.solicitudes.length === 0) {
+        return res.status(404).json({ message: result.mensaje });
+      }
+
+      // Responder con los datos
+      res.status(200).json({
+        solicitudes: result.solicitudes,
+        mensaje: result.mensaje
+      });
+    } catch (error) {
+      console.error('Error en listaSolicitudesPrestamosPorFecha:', error);
+      res.status(500).json({ error: 'Error interno al procesar la solicitud.' });
+    }
+  }
 }

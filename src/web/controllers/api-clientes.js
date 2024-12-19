@@ -4,12 +4,14 @@ export class ApiCliente {
   static async nuevoCliente (req, res) {
     try {
       console.log('Datos recibidos:', req.body);
+
       const { nombre, primerApellido, segundoApellido, direccion, telefono, correoElectronico, personaCedula, contrasena } = req.body;
 
       if (!personaCedula) {
-        return res.status(400).json({ error: 'El campo personaCedula es obligatorio.' });
+        return res.status(400).json({ success: false, message: 'El campo personaCedula es obligatorio.' });
       }
 
+      // Llamar al método que inserta el cliente
       const result = await ClienteController.insertarCliente({
         nombre,
         primerApellido,
@@ -21,10 +23,11 @@ export class ApiCliente {
         contrasena
       });
 
-      res.status(201).json({ message: result.message });
+      // Devolver la respuesta incluyendo success
+      res.status(201).json({ success: result.success, message: result.message });
     } catch (e) {
       console.error('Error en nuevoCliente:', e);
-      res.status(500).json({ error: e.message });
+      res.status(500).json({ success: false, message: 'Error interno del servidor.' });
     }
   }
 
