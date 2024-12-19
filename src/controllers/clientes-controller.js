@@ -22,7 +22,7 @@ export class ClienteController {
 
       await connection.beginTransaction();
 
-      const [rows] = await connection.query(`
+      await connection.query(`
         CALL agregarCliente(?, ?, ?, ?, ?, ?, ?, ?, @mensaje);
       `, [nombre, primerApellido, segundoApellido, personaCedula, direccion, telefono, correoElectronico, contrasena]);
 
