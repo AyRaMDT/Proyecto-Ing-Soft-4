@@ -97,4 +97,31 @@ export class PagosController {
       return { success: false, message: 'Error al ejecutar el SP leerPagos.' };
     }
   }
+
+  static async obtenerListaPagosporID (idCliente = null) {
+    try {
+      console.log(`Ejecutando leerPagosporID con idCliente: ${idCliente}`); // Log del parámetro
+
+      const [result] = await connection.query('CALL leerPagosporID(?);', [idCliente]);
+
+      console.log('Resultado del procedimiento:', result); // Log del resultado
+
+      if (!result || result.length === 0) {
+        return {
+          success: false,
+          message: idCliente
+            ? 'No se encontraron pagos para el cliente indicado.'
+            : 'No se encontraron pagos.'
+        };
+      }
+
+      const pagos = result;
+      const mensaje = pagos[0]?.mensaje || 'Consulta realizada correctamente.';
+
+      return { success: true, mensaje, pagos };
+    } catch (error) {
+      console.error('Error al obtener los pagos:', error); // Log del error
+      return { success: false, message: 'Error al ejecutar el procedimiento almacenado leerPagos.' };
+    }
+  }
 }

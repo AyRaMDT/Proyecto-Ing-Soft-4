@@ -87,4 +87,38 @@ export class ApiPago {
       res.status(500).json({ error: e.message });
     }
   }
+
+  static async listaPagosporID (req, res) {
+    try {
+      const idCliente = req.query.idCliente || null;
+
+      if (!idCliente) {
+        console.log('Falta idCliente en la solicitud'); // Log de validación
+        return res.status(400).json({ message: 'El idCliente es obligatorio.' });
+      }
+
+      console.log(`Llamando a obtenerListaPagosporID con idCliente: ${idCliente}`); // Log del parámetro
+
+      const result = await PagosController.obtenerListaPagosporID(idCliente);
+
+      if (!result.success) {
+        console.log('Fallo en obtenerListaPagosporID:', result.message); // Log del mensaje de error
+        return res.status(500).json({ message: result.message });
+      }
+
+      if (result.pagos.length === 0) {
+        console.log('No se encontraron pagos:', result.mensaje); // Log de resultado vacío
+        return res.status(404).json({ message: result.mensaje });
+      }
+
+      console.log('Pagos obtenidos:', result.pagos); // Log de los pagos obtenidos
+      res.status(200).json({
+        pagos: result.pagos,
+        mensaje: result.mensaje
+      });
+    } catch (error) {
+      console.error('Error en listaPagosporID:', error); // Log del error
+      res.status(500).json({ message: 'Error al procesar la solicitud.' });
+    }
+  }
 }

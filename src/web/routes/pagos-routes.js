@@ -5,3 +5,4 @@ export const PagosRouter = Router();
 
 PagosRouter.post('/realizarPago', ApiPago.registrarPago);
 PagosRouter.get('/listaPagos', ApiPago.listaPagos);
+PagosRouter.get('/listaPagosporID', ApiPago.listaPagosporID);

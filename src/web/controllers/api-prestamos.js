@@ -285,4 +285,31 @@ export class ApiPrestamo {
       res.status(500).json({ error: 'Error interno al procesar la solicitud.' });
     }
   }
+
+  static async listaPrestamosporID (req, res) {
+    try {
+      // Obtener el parámetro `idCliente` de la consulta (query string)
+      const idCliente = req.query.idCliente || null;
+
+      // Llamar al controlador para obtener los préstamos
+      const result = await PrestamosController.obtenerListaPrestamos(idCliente);
+
+      if (!result.success) {
+        return res.status(500).json({ message: result.message });
+      }
+
+      if (result.prestamos.length === 0) {
+        return res.status(404).json({ message: result.mensaje });
+      }
+
+      // Responder con éxito
+      res.status(200).json({
+        prestamos: result.prestamos,
+        mensaje: result.mensaje
+      });
+    } catch (e) {
+      console.error('Error en listaPrestamos:', e);
+      res.status(500).json({ error: e.message });
+    }
+  }
 }

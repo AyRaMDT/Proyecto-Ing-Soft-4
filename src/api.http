@@ -228,3 +228,9 @@ GET "http://localhost:3333/prestamos/solicitudes?fechaInicio=2024-01-01&fechaFin
 
 Content-Type: application/json
 
+
+###Prestamo fecha CLIENTES
+GET "http://localhost:3333/prestamos/listarID?idCliente=21"
+
+Content-Type: application/json
+

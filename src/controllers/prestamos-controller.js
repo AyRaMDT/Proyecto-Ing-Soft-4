@@ -252,6 +252,26 @@ export class PrestamosController {
       };
     }
   }
+
+  static async obtenerListaPrestamosporID (idCliente = null) {
+    try {
+      // Ejecutar el procedimiento almacenado con el parámetro
+      const [result] = await connection.query('CALL leerPrestamoporID(?);', [idCliente]);
+
+      if (!result || result.length === 0) {
+        return { success: false, message: 'No se encontraron datos.' };
+      }
+
+      // Los resultados están en el primer índice del array devuelto por el SP
+      const prestamos = result[0];
+      const mensaje = prestamos[0]?.mensaje || 'Consulta realizada correctamente.';
+
+      return { success: true, mensaje, prestamos };
+    } catch (error) {
+      console.error('Error al obtener los préstamos:', error);
+      return { success: false, message: 'Error al ejecutar el SP leerPrestamoporID.' };
+    }
+  }
 }
 
 export default PrestamosController;
