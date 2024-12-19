@@ -3,7 +3,6 @@ import { PagosController } from '../../controllers/pagos-controller.js';
 export class ApiPago {
   static async registrarPago (req, res) {
     try {
-      // Obtenemos los datos del cuerpo de la solicitud
       const {
         fechaPago,
         montoPagado,
@@ -15,7 +14,6 @@ export class ApiPago {
         idPrestamos
       } = req.body;
 
-      // console.log(req.body);
       if (
         fechaPago === undefined ||
         montoPagado === undefined ||
