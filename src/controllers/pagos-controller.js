@@ -4,7 +4,6 @@ const connection = await connectDB();
 export class PagosController {
   static agregarPago = async ({ fechaPago, montoPagado, medioPago, intereses, amortizacion, cuotaPago, numeroPagos, idPrestamos }) => {
     try {
-      // Validate that the loan exists and fetch its data
       const [prestamos] = await connection.query(
         'SELECT * FROM prestamoscliente WHERE idPrestamos = ?',
         [idPrestamos]
@@ -18,7 +17,6 @@ export class PagosController {
 
       console.log('Prestamo obtenido:', prestamo);
 
-      // Validate that the balance and amortization are numeric
       const saldoActual = parseFloat(prestamo.saldo);
       const amortizacionNumerica = parseFloat(amortizacion);
 
@@ -27,7 +25,6 @@ export class PagosController {
         return { success: false, message: 'Datos inválidos para calcular el saldo.' };
       }
 
-      // Check for duplicate payments
       const [pagoExistente] = await connection.query(
         'SELECT * FROM pagos WHERE numeroPagos = ? AND idPrestamos = ? AND montoPagado = ?',
         [numeroPagos, idPrestamos, montoPagado]
@@ -38,7 +35,6 @@ export class PagosController {
         return { success: false, message: 'El pago ya ha sido registrado.' };
       }
 
-      // Insert the new payment
       const [result] = await connection.query(
         'CALL agregarPago(?, ?, ?, ?, ?, ?, ?, ?)',
         [
@@ -57,7 +53,6 @@ export class PagosController {
         return { success: false, message: 'No se pudo agregar el pago. Verifique los datos.' };
       }
 
-      // Update the loan balance
       const saldoActualizado = saldoActual - amortizacionNumerica;
 
       console.log('Saldo Actualizado:', saldoActualizado);
