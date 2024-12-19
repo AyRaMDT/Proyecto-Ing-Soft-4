@@ -7,3 +7,4 @@ export const authRouter = Router();
 authRouter.post('/login', ApiAuth.login);
 authRouter.post('/logout', ApiAuth.logout);
 authRouter.get('/profile', authRequire, ApiAuth.profile);
+authRouter.get('/verify', authRequire, ApiAuth.verifyToken);
