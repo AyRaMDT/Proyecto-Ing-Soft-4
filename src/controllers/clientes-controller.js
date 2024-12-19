@@ -4,22 +4,20 @@ const connection = await connectDB();
 
 export class ClienteController {
   static async insertarCliente (clienteNuevo) {
-    const { nombre, primerApellido, segundoApellido, direccion, telefono, correoElectronico, personaCedula, contrasena } = clienteNuevo;
+    const {
+      nombre,
+      primerApellido,
+      segundoApellido,
+      direccion,
+      telefono,
+      correoElectronico,
+      personaCedula,
+      contrasena
+    } = clienteNuevo;
 
     try {
-      console.log('Datos enviados para insertar cliente:', {
-        nombre,
-        primerApellido,
-        segundoApellido,
-        direccion,
-        telefono,
-        correoElectronico,
-        personaCedula,
-        contrasena
-      });
-
       if (!personaCedula) {
-        throw new Error('El campo personaCedula es obligatorio.');
+        return { success: false, message: 'El campo personaCedula es obligatorio.' };
       }
 
       await connection.beginTransaction();
@@ -29,24 +27,27 @@ export class ClienteController {
       `, [nombre, primerApellido, segundoApellido, personaCedula, direccion, telefono, correoElectronico, contrasena]);
 
       const [result] = await connection.query('SELECT @mensaje AS mensaje');
-      const mensaje = result[0].mensaje;
-      console.log(rows);
+      const mensaje = result[0]?.mensaje;
 
       console.log('Mensaje recibido del procedimiento:', mensaje);
 
-      if (mensaje === 'Éxito: Cliente agregado correctamente.') {
+      if (mensaje.startsWith('Éxito')) {
         await connection.commit();
-        console.log(mensaje);
-        return { success: true, message: mensaje };
+        return { success: true, message: mensaje }; // Asegúrate de incluir success: true
       } else {
         await connection.rollback();
-        console.error(mensaje);
-        return { success: false, message: mensaje };
+        return { success: false, message: mensaje }; // Asegúrate de incluir success: false
       }
     } catch (error) {
-      await connection.rollback();
       console.error('Error al insertar cliente:', error);
-      return { success: false, message: 'Error: No se pudo agregar el registro.' };
+
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error('Error al revertir la transacción:', rollbackError);
+      }
+
+      return { success: false, message: 'Error interno en el servidor.' }; // Incluye success aquí también
     }
   }
 

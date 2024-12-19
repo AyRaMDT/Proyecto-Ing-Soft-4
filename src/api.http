@@ -217,3 +217,14 @@ Content-Type: application/json
   "diaPago": 15,
   "estadoPrestamoId": 2
 }
+
+###Prestamo fecha
+GET "http://localhost:3333/prestamos/filtroPrestamo?fechaInicio=2024-01-01&fechaFin=2024-12-31"
+
+Content-Type: application/json
+
+###Prestamo fecha CLIENTES
+GET "http://localhost:3333/prestamos/solicitudes?fechaInicio=2024-01-01&fechaFin=2024-12-31"
+
+Content-Type: application/json
+

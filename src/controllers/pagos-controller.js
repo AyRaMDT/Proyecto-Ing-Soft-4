@@ -4,7 +4,7 @@ const connection = await connectDB();
 export class PagosController {
   static agregarPago = async ({ fechaPago, montoPagado, medioPago, intereses, amortizacion, cuotaPago, numeroPagos, idPrestamos }) => {
     try {
-      // Validar que el préstamo exista y obtener los datos
+      // Validate that the loan exists and fetch its data
       const [prestamos] = await connection.query(
         'SELECT * FROM prestamoscliente WHERE idPrestamos = ?',
         [idPrestamos]
@@ -18,7 +18,7 @@ export class PagosController {
 
       console.log('Prestamo obtenido:', prestamo);
 
-      // Validar que el saldo sea numérico y amortización esté definida
+      // Validate that the balance and amortization are numeric
       const saldoActual = parseFloat(prestamo.saldo);
       const amortizacionNumerica = parseFloat(amortizacion);
 
@@ -27,15 +27,18 @@ export class PagosController {
         return { success: false, message: 'Datos inválidos para calcular el saldo.' };
       }
 
-      // Validar que el pago no sea duplicado
+      // Check for duplicate payments
       const [pagoExistente] = await connection.query(
         'SELECT * FROM pagos WHERE numeroPagos = ? AND idPrestamos = ? AND montoPagado = ?',
         [numeroPagos, idPrestamos, montoPagado]
       );
 
-      console.log('Pago existente encontrado:', pagoExistente);
+      if (pagoExistente.length > 0) {
+        console.log('Pago duplicado:', pagoExistente);
+        return { success: false, message: 'El pago ya ha sido registrado.' };
+      }
 
-      // Insertar el nuevo pago
+      // Insert the new payment
       const [result] = await connection.query(
         'CALL agregarPago(?, ?, ?, ?, ?, ?, ?, ?)',
         [
@@ -54,7 +57,7 @@ export class PagosController {
         return { success: false, message: 'No se pudo agregar el pago. Verifique los datos.' };
       }
 
-      // Actualizar el saldo restando la amortización
+      // Update the loan balance
       const saldoActualizado = saldoActual - amortizacionNumerica;
 
       console.log('Saldo Actualizado:', saldoActualizado);
@@ -63,6 +66,17 @@ export class PagosController {
         'UPDATE prestamoscliente SET saldo = ? WHERE idPrestamos = ?',
         [saldoActualizado, idPrestamos]
       );
+
+      const [updateResult] = await connection.query(
+        'UPDATE formalizacionprestamo SET estadoPrestamoPago = "Pagado" WHERE prestamoscliente_idPrestamos = ?',
+        [idPrestamos]
+      );
+
+      if (updateResult.affectedRows > 0) {
+        console.log('Estado de préstamo actualizado a "Pagado".');
+      } else {
+        console.log('No se encontró ningún registro para actualizar.');
+      }
 
       return { success: true, message: 'Pago registrado y saldo actualizado correctamente.' };
     } catch (error) {

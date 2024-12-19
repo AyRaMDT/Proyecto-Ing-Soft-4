@@ -99,9 +99,13 @@ export class FormalizacionController {
 
   static async obtenerDatosPrestamoFormalizado () {
     try {
-      const query = 'CALL ObtenerDatosPrestamoFormalizado()'; // Llama al procedimiento almacenado
+      const query = 'CALL ObtenerDatosPrestamoFormalizadoTODO()'; // Llama al procedimiento almacenado
       const [rows] = await connection.query(query); // Ejecuta el query
-      return { success: true, data: rows[0] }; // Retorna la primera parte de los resultados
+
+      // Verifica si rows[0] contiene datos
+      const data = Array.isArray(rows) ? rows[0] : []; // Maneja caso donde rows no sea un array
+
+      return { success: true, data }; // Retorna los datos
     } catch (error) {
       console.error('Error en obtenerDatosPrestamoFormalizado:', error);
       return { success: false, message: 'Error al obtener los datos de préstamos formalizados.' };
